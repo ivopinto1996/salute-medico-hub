@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CalendarIcon, Clock, MapPin, FileText, Users, Plus, ChevronLeft, ChevronRight, Calendar as CalendarDaysIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AppointmentDetails } from '@/components/Calendar/AppointmentDetails';
@@ -278,8 +279,80 @@ const Calendario = () => {
       </div>
 
       <div className="space-y-6">
-        {/* Filtros - Responsivos (lado a lado em md, escondidos em xl) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:hidden gap-4">
+        {/* Filtros - Accordions para mobile (escondidos em md+) */}
+        <div className="md:hidden space-y-2">
+          <Accordion type="multiple" defaultValue={["calendar", "filters"]} className="w-full">
+            <AccordionItem value="calendar">
+              <AccordionTrigger className="flex items-center gap-2 py-3">
+                <Clock className="h-4 w-4" />
+                Calendário
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="pt-2">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      setSelectedDate(date);
+                      if (date) {
+                        navigateToWeekByDate(date);
+                      }
+                    }}
+                    className="rounded-md w-full mx-auto [&>div]:w-full [&_table]:w-full [&_td]:text-center [&_th]:text-center"
+                    classNames={{
+                      months: "flex flex-col space-y-4 w-full",
+                      month: "space-y-4 w-full",
+                      caption: "flex justify-center pt-1 relative items-center",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex w-full",
+                      head_cell: "text-muted-foreground rounded-md w-full font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2",
+                      cell: "text-center text-sm p-0 relative w-full h-9 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                      day: "h-9 w-full p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md",
+                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      day_today: "bg-accent text-accent-foreground",
+                      day_outside: "text-muted-foreground opacity-50",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                      day_hidden: "invisible",
+                    }}
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="filters">
+              <AccordionTrigger className="py-3">
+                Filtrar Consultas e Ausências
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3 pt-2">
+                  {allFilterTypes.map((type) => (
+                    <div key={type.name} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`mobile-${type.name}`}
+                        checked={selectedAppointmentTypes.includes(type.name)}
+                        onCheckedChange={() => toggleAppointmentType(type.name)}
+                      />
+                      <label htmlFor={`mobile-${type.name}`} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <div className={cn("w-3 h-3 rounded-sm border", type.color)}></div>
+                        <span>{type.name}</span>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        {/* Filtros - Cards para tablet (lado a lado em md, escondidos em xl) */}
+        <div className="hidden md:grid md:grid-cols-2 xl:hidden gap-4">
           {/* Calendário Mini com função de filtro */}
           <Card className="w-full">
             <CardHeader>
