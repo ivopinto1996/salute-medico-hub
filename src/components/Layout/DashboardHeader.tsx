@@ -118,12 +118,12 @@ export const DashboardHeader = () => {
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+            className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden animate-fade-in"
             onClick={() => setShowMobileMenu(false)}
           />
           
           {/* Sidebar */}
-          <div className="fixed top-0 left-0 h-full w-80 bg-background border-r shadow-lg z-50 md:hidden">
+          <div className="fixed top-0 left-0 h-full w-80 bg-background border-r shadow-lg z-50 md:hidden animate-slide-in-left">
             {/* Sidebar Header */}
             <div className="border-b p-4">
               <div className="flex items-center justify-between">
