@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Clock, MapPin, FileText, User, CreditCard, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ChangeAppointmentTimeModal } from './ChangeAppointmentTimeModal';
+import { CancelAppointmentModal } from './CancelAppointmentModal';
 
 interface Appointment {
   id: string;
@@ -18,12 +22,33 @@ interface Appointment {
 interface AppointmentDetailsProps {
   appointment: Appointment;
   onClose: () => void;
+  onUpdateAppointment?: (appointmentId: string, newDate: Date, newTime: string) => void;
+  onCancelAppointment?: (appointmentId: string, reason: string) => void;
 }
 
-export const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsProps) => {
+export const AppointmentDetails = ({ 
+  appointment, 
+  onClose, 
+  onUpdateAppointment, 
+  onCancelAppointment 
+}: AppointmentDetailsProps) => {
+  const [showChangeTime, setShowChangeTime] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
   const handleDownloadDocument = (documentName: string) => {
     // Simulação de download - em produção, implementar download real
     console.log(`Baixando documento: ${documentName}`);
+  };
+
+  const handleUpdateTime = (appointmentId: string, newDate: Date, newTime: string) => {
+    onUpdateAppointment?.(appointmentId, newDate, newTime);
+    setShowChangeTime(false);
+  };
+
+  const handleCancelAppointment = (appointmentId: string, reason: string) => {
+    onCancelAppointment?.(appointmentId, reason);
+    setShowCancelModal(false);
+    onClose();
   };
 
   return (
@@ -147,13 +172,41 @@ export const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsP
         <Button variant="outline" onClick={onClose}>
           Fechar
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" onClick={() => setShowChangeTime(true)}>
           Editar Data/Hora
         </Button>
-        <Button variant="destructive">
+        <Button variant="destructive" onClick={() => setShowCancelModal(true)}>
           Cancelar Consulta
         </Button>
       </div>
+
+      {/* Modal para alterar horário */}
+      <Dialog open={showChangeTime} onOpenChange={setShowChangeTime}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Alterar Horário da Consulta</DialogTitle>
+          </DialogHeader>
+          <ChangeAppointmentTimeModal
+            appointment={appointment}
+            onClose={() => setShowChangeTime(false)}
+            onSave={handleUpdateTime}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para cancelar consulta */}
+      <Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancelar Consulta</DialogTitle>
+          </DialogHeader>
+          <CancelAppointmentModal
+            appointment={appointment}
+            onClose={() => setShowCancelModal(false)}
+            onCancel={handleCancelAppointment}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

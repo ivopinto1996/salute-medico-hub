@@ -3,11 +3,15 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, FileText, Users, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, Clock, MapPin, FileText, Users, Plus, ChevronLeft, ChevronRight, Calendar as CalendarDaysIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AppointmentDetails } from '@/components/Calendar/AppointmentDetails';
 import { NewAppointmentForm } from '@/components/Calendar/NewAppointmentForm';
+import { NewAbsenceForm } from '@/components/Calendar/NewAbsenceForm';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface Appointment {
   id: string;
@@ -24,7 +28,12 @@ const Calendario = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showNewAppointment, setShowNewAppointment] = useState(false);
+  const [showNewAbsence, setShowNewAbsence] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [calendarFilterDate, setCalendarFilterDate] = useState<Date | undefined>(new Date());
+  const [selectedAppointmentTypes, setSelectedAppointmentTypes] = useState<string[]>([
+    'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência'
+  ]);
 
   // Dados simulados de consultas com mais variedade
   const appointments: Appointment[] = [
@@ -130,8 +139,34 @@ const Calendario = () => {
 
   const getAppointmentsForDate = (date: Date) => {
     return appointments.filter(
-      (apt) => apt.date.toDateString() === date.toDateString()
+      (apt) => apt.date.toDateString() === date.toDateString() && 
+      selectedAppointmentTypes.includes(apt.type)
     );
+  };
+
+  // Função para navegar para uma semana específica baseada na data selecionada
+  const navigateToWeekByDate = (date: Date) => {
+    setCurrentWeek(date);
+  };
+
+  // Função para alternar tipos de consulta no filtro
+  const toggleAppointmentType = (typeName: string) => {
+    setSelectedAppointmentTypes(prev => 
+      prev.includes(typeName) 
+        ? prev.filter(t => t !== typeName)
+        : [...prev, typeName]
+    );
+  };
+
+  // Funções para atualizar e cancelar consultas
+  const handleUpdateAppointment = (appointmentId: string, newDate: Date, newTime: string) => {
+    // Aqui você implementaria a lógica para atualizar a consulta
+    console.log(`Atualizando consulta ${appointmentId} para ${newDate} às ${newTime}`);
+  };
+
+  const handleCancelAppointment = (appointmentId: string, reason: string) => {
+    // Aqui você implementaria a lógica para cancelar a consulta
+    console.log(`Cancelando consulta ${appointmentId} com motivo: ${reason}`);
   };
 
   const getAppointmentPosition = (time: string) => {
@@ -156,25 +191,83 @@ const Calendario = () => {
             Gerencie suas consultas e horários de atendimento
           </p>
         </div>
-        <Dialog open={showNewAppointment} onOpenChange={setShowNewAppointment}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Consulta
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Agendar Nova Consulta</DialogTitle>
-            </DialogHeader>
-            <NewAppointmentForm onClose={() => setShowNewAppointment(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Dialog open={showNewAppointment} onOpenChange={setShowNewAppointment}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Consulta
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Agendar Nova Consulta</DialogTitle>
+              </DialogHeader>
+              <NewAppointmentForm onClose={() => setShowNewAppointment(false)} />
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={showNewAbsence} onOpenChange={setShowNewAbsence}>
+            <DialogTrigger asChild>
+              <Button variant="secondary">
+                <CalendarDaysIcon className="mr-2 h-4 w-4" />
+                Nova Ausência
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Registrar Nova Ausência</DialogTitle>
+              </DialogHeader>
+              <NewAbsenceForm onClose={() => setShowNewAbsence(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Calendário Mini e Filtros */}
+        {/* Filtros */}
         <div className="lg:col-span-1 space-y-6">
+          {/* Date Picker para filtro */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <CalendarIcon className="h-4 w-4" />
+                Filtro por Data
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !calendarFilterDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {calendarFilterDate ? format(calendarFilterDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={calendarFilterDate}
+                    onSelect={(date) => {
+                      setCalendarFilterDate(date);
+                      if (date) {
+                        navigateToWeekByDate(date);
+                      }
+                    }}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </CardContent>
+          </Card>
+
+          {/* Calendário Mini */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -192,15 +285,24 @@ const Calendario = () => {
             </CardContent>
           </Card>
 
+          {/* Filtro de Tipos de Consulta */}
+
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Tipos de Consulta</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-3">
               {appointmentTypes.map((type) => (
-                <div key={type.name} className="flex items-center gap-2 text-sm">
-                  <div className={cn("w-3 h-3 rounded-sm border", type.color)}></div>
-                  <span>{type.name}</span>
+                <div key={type.name} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={type.name}
+                    checked={selectedAppointmentTypes.includes(type.name)}
+                    onCheckedChange={() => toggleAppointmentType(type.name)}
+                  />
+                  <label htmlFor={type.name} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <div className={cn("w-3 h-3 rounded-sm border", type.color)}></div>
+                    <span>{type.name}</span>
+                  </label>
                 </div>
               ))}
             </CardContent>
@@ -303,6 +405,8 @@ const Calendario = () => {
             <AppointmentDetails
               appointment={selectedAppointment}
               onClose={() => setSelectedAppointment(null)}
+              onUpdateAppointment={handleUpdateAppointment}
+              onCancelAppointment={handleCancelAppointment}
             />
           )}
         </DialogContent>
