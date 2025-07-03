@@ -171,7 +171,7 @@ export const DashboardHeader = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 flex items-center justify-center">
-                    <img src="/logo-sidebar.png" alt="Portal Logo" className="h-8 w-8 object-contain" />
+                    <img src="/lovable-uploads/c177b398-b785-4255-9c4c-110d96675c01.png" alt="Portal Logo" className="h-8 w-8" />
                   </div>
                   <div>
                     <h2 className="font-semibold text-lg">Medclic</h2>
