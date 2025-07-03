@@ -223,18 +223,18 @@ const Calendario = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Filtros */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="xl:col-span-1 space-y-6">
           {/* Calendário Mini com função de filtro */}
-          <Card>
+          <Card className="w-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4" />
                 Calendário
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -244,7 +244,7 @@ const Calendario = () => {
                     navigateToWeekByDate(date);
                   }
                 }}
-                className="rounded-md border scale-90"
+                className="rounded-md w-full p-3"
               />
             </CardContent>
           </Card>
@@ -274,10 +274,10 @@ const Calendario = () => {
         </div>
 
         {/* Agenda Semanal */}
-        <div className="lg:col-span-3">
-          <Card>
+        <div className="xl:col-span-3">
+          <Card className="w-full">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   Agenda Semanal
@@ -286,7 +286,7 @@ const Calendario = () => {
                   <Button variant="outline" size="sm" onClick={() => navigateWeek('prev')}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium whitespace-nowrap">
                     {weekDays[0]?.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} - {weekDays[6]?.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                   </span>
                   <Button variant="outline" size="sm" onClick={() => navigateWeek('next')}>
@@ -296,7 +296,8 @@ const Calendario = () => {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="grid grid-cols-8 border-b">
+              <div className="overflow-x-auto">
+                <div className="grid grid-cols-8 border-b min-w-[800px]">
                 <div className="p-3 border-r bg-muted/30 text-xs font-medium"></div>
                 {weekDays.map((day, index) => (
                   <div key={day.toISOString()} className="p-3 border-r bg-muted/30 text-center">
@@ -313,7 +314,7 @@ const Calendario = () => {
                 ))}
               </div>
 
-              <div className="grid grid-cols-8 relative">
+                <div className="grid grid-cols-8 relative min-w-[800px]">
                 {/* Coluna de horários */}
                 <div className="border-r">
                   {timeSlots.map((time) => (
@@ -353,6 +354,7 @@ const Calendario = () => {
                     ))}
                   </div>
                 ))}
+                </div>
               </div>
             </CardContent>
           </Card>
