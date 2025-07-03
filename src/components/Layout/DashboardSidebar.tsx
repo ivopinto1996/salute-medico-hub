@@ -21,7 +21,7 @@ export const menuItems = [
   {
     title: 'O meu perfil',
     url: '/gestao-perfil',
-    icon: Settings,
+    icon: User,
   },
   {
     title: 'Documentos',
