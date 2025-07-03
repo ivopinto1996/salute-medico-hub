@@ -12,7 +12,7 @@ import {
   SidebarHeader,
 } from '@/components/ui/sidebar';
 
-const menuItems = [
+export const menuItems = [
   {
     title: 'Calendário',
     url: '/calendario',
@@ -34,7 +34,7 @@ export const DashboardSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r hidden lg:block">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center">
