@@ -38,7 +38,7 @@ export const DashboardSidebar = () => {
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center">
-            <img src="/lovable-uploads/c177b398-b785-4255-9c4c-110d96675c01.png" alt="Portal Logo" className="h-5 w-5" />
+            <img src="/lovable-uploads/c177b398-b785-4255-9c4c-110d96675c01.png" alt="Portal Logo" className="h-8 w-8" />
           </div>
           <div>
             <h2 className="font-semibold text-lg">Portal Médico</h2>
