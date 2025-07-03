@@ -244,7 +244,7 @@ const Calendario = () => {
                     navigateToWeekByDate(date);
                   }
                 }}
-                className="rounded-md w-full p-3"
+                className="rounded-md w-full"
               />
             </CardContent>
           </Card>
