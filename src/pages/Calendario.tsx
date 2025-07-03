@@ -41,7 +41,8 @@ const Calendario = () => {
   const [showNewAbsence, setShowNewAbsence] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedAppointmentTypes, setSelectedAppointmentTypes] = useState<string[]>([
-    'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência'
+    'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência',
+    'Férias', 'Doença', 'Formação', 'Congresso', 'Licença Parental', 'Licença Especial'
   ]);
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
@@ -111,11 +112,22 @@ const Calendario = () => {
   ];
 
   const appointmentTypes = [
-    { name: 'Consulta de Rotina', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-    { name: 'Primeira Consulta', color: 'bg-orange-100 text-orange-800 border-orange-200' },
-    { name: 'Retorno', color: 'bg-green-100 text-green-800 border-green-200' },
-    { name: 'Urgência', color: 'bg-red-100 text-red-800 border-red-200' },
+    { name: 'Consulta de Rotina', color: 'bg-blue-100 text-blue-800 border-blue-200', type: 'appointment' },
+    { name: 'Primeira Consulta', color: 'bg-orange-100 text-orange-800 border-orange-200', type: 'appointment' },
+    { name: 'Retorno', color: 'bg-green-100 text-green-800 border-green-200', type: 'appointment' },
+    { name: 'Urgência', color: 'bg-red-100 text-red-800 border-red-200', type: 'appointment' },
   ];
+
+  const absenceTypes = [
+    { name: 'Férias', color: 'bg-purple-100 text-purple-800 border-purple-200', type: 'absence' },
+    { name: 'Doença', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', type: 'absence' },
+    { name: 'Formação', color: 'bg-indigo-100 text-indigo-800 border-indigo-200', type: 'absence' },
+    { name: 'Congresso', color: 'bg-pink-100 text-pink-800 border-pink-200', type: 'absence' },
+    { name: 'Licença Parental', color: 'bg-cyan-100 text-cyan-800 border-cyan-200', type: 'absence' },
+    { name: 'Licença Especial', color: 'bg-gray-100 text-gray-800 border-gray-200', type: 'absence' },
+  ];
+
+  const allFilterTypes = [...appointmentTypes, ...absenceTypes];
 
   const timeSlots = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -206,6 +218,11 @@ const Calendario = () => {
       const absenceStart = new Date(absence.startDate);
       const absenceEnd = new Date(absence.endDate);
       
+      // Filtrar por tipo selecionado
+      if (!selectedAppointmentTypes.includes(absence.type)) {
+        return false;
+      }
+      
       // Normalizar as datas para comparação (ignorar horas)
       const compareDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       const compareStart = new Date(absenceStart.getFullYear(), absenceStart.getMonth(), absenceStart.getDate());
@@ -289,10 +306,10 @@ const Calendario = () => {
           {/* Filtro de Tipos de Consulta */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Tipos de Consulta</CardTitle>
+              <CardTitle className="text-sm">Filtrar Consultas e Ausências</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {appointmentTypes.map((type) => (
+              {allFilterTypes.map((type) => (
                 <div key={type.name} className="flex items-center space-x-2">
                   <Checkbox
                     id={`md-${type.name}`}
@@ -339,10 +356,10 @@ const Calendario = () => {
             {/* Filtro de Tipos de Consulta */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Tipos de Consulta</CardTitle>
+                <CardTitle className="text-sm">Filtrar Consultas e Ausências</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {appointmentTypes.map((type) => (
+                {allFilterTypes.map((type) => (
                   <div key={type.name} className="flex items-center space-x-2">
                     <Checkbox
                       id={`xl-${type.name}`}
