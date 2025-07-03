@@ -41,8 +41,8 @@ export const DashboardSidebar = () => {
             <img src="/lovable-uploads/c177b398-b785-4255-9c4c-110d96675c01.png" alt="Portal Logo" className="h-8 w-8" />
           </div>
           <div>
-            <h2 className="font-semibold text-lg">Portal Médico</h2>
-            <p className="text-sm text-muted-foreground">Sistema de Gestão</p>
+            <h2 className="font-semibold text-lg">Medclic</h2>
+            <p className="text-sm text-muted-foreground">Sistema da Agenda Médica</p>
           </div>
         </div>
       </SidebarHeader>
