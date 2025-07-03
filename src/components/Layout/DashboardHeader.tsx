@@ -43,11 +43,11 @@ export const DashboardHeader = () => {
       <header className="border-b bg-background px-6 py-3 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Hamburger Menu - visible only on lg and below */}
+            {/* Hamburger Menu - visible only below 1024px */}
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="block lg:hidden"
               onClick={() => setShowMobileMenu(!showMobileMenu)}
             >
               {showMobileMenu ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
