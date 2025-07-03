@@ -3,10 +3,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, FileText, Users, Plus } from 'lucide-react';
+import { Clock, MapPin, FileText, Users, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AppointmentDetails } from '@/components/Calendar/AppointmentDetails';
 import { NewAppointmentForm } from '@/components/Calendar/NewAppointmentForm';
+import { cn } from '@/lib/utils';
 
 interface Appointment {
   id: string;
@@ -23,8 +24,9 @@ const Calendario = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showNewAppointment, setShowNewAppointment] = useState(false);
+  const [currentWeek, setCurrentWeek] = useState(new Date());
 
-  // Dados simulados de consultas
+  // Dados simulados de consultas com mais variedade
   const appointments: Appointment[] = [
     {
       id: '1',
@@ -32,7 +34,7 @@ const Calendario = () => {
       time: '09:00',
       date: new Date(),
       hasInsurance: true,
-      location: 'Consultório A - Rua das Flores, 123, São Paulo',
+      location: 'Consultório A',
       documents: ['Exame de sangue', 'Eletrocardiograma'],
       type: 'Consulta de Rotina',
     },
@@ -42,7 +44,7 @@ const Calendario = () => {
       time: '14:30',
       date: new Date(),
       hasInsurance: false,
-      location: 'Consultório B - Av. Paulista, 456, São Paulo',
+      location: 'Consultório B',
       documents: ['Raio-X do tórax'],
       type: 'Primeira Consulta',
     },
@@ -52,20 +54,98 @@ const Calendario = () => {
       time: '16:00',
       date: new Date(Date.now() + 86400000), // Amanhã
       hasInsurance: true,
-      location: 'Consultório A - Rua das Flores, 123, São Paulo',
+      location: 'Consultório A',
       documents: [],
+      type: 'Retorno',
+    },
+    {
+      id: '4',
+      patientName: 'Pedro Oliveira',
+      time: '10:30',
+      date: new Date(),
+      hasInsurance: true,
+      location: 'Consultório A',
+      documents: ['Ultrassom'],
+      type: 'Consulta de Rotina',
+    },
+    {
+      id: '5',
+      patientName: 'Carla Mendes',
+      time: '11:15',
+      date: new Date(Date.now() + 86400000),
+      hasInsurance: false,
+      location: 'Consultório B',
+      documents: [],
+      type: 'Urgência',
+    },
+    {
+      id: '6',
+      patientName: 'Roberto Lima',
+      time: '15:45',
+      date: new Date(Date.now() + 2 * 86400000), // Depois de amanhã
+      hasInsurance: true,
+      location: 'Consultório A',
+      documents: ['Eletrocardiograma'],
       type: 'Retorno',
     },
   ];
 
-  const getAppointmentsForDate = (date: Date | undefined) => {
-    if (!date) return [];
+  const appointmentTypes = [
+    { name: 'Consulta de Rotina', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { name: 'Primeira Consulta', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { name: 'Retorno', color: 'bg-green-100 text-green-800 border-green-200' },
+    { name: 'Urgência', color: 'bg-red-100 text-red-800 border-red-200' },
+  ];
+
+  const timeSlots = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+    '16:00', '16:30', '17:00', '17:30', '18:00'
+  ];
+
+  // Funções para navegação da semana
+  const getWeekDays = (date: Date) => {
+    const week = [];
+    const startDate = new Date(date);
+    const day = startDate.getDay();
+    const diff = startDate.getDate() - day + (day === 0 ? -6 : 1); // Segunda-feira
+    startDate.setDate(diff);
+    
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(startDate);
+      day.setDate(startDate.getDate() + i);
+      week.push(day);
+    }
+    return week;
+  };
+
+  const weekDays = getWeekDays(currentWeek);
+  const weekDayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const newWeek = new Date(currentWeek);
+    newWeek.setDate(currentWeek.getDate() + (direction === 'next' ? 7 : -7));
+    setCurrentWeek(newWeek);
+  };
+
+  const getAppointmentsForDate = (date: Date) => {
     return appointments.filter(
       (apt) => apt.date.toDateString() === date.toDateString()
     );
   };
 
-  const todayAppointments = getAppointmentsForDate(selectedDate);
+  const getAppointmentPosition = (time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes;
+    const startMinutes = 8 * 60; // 08:00
+    const position = ((totalMinutes - startMinutes) / 30) * 60; // 60px por slot de 30min
+    return Math.max(0, position);
+  };
+
+  const getAppointmentColor = (type: string) => {
+    const appointmentType = appointmentTypes.find(t => t.name === type);
+    return appointmentType?.color || 'bg-gray-100 text-gray-800 border-gray-200';
+  };
 
   return (
     <div className="space-y-6">
@@ -92,87 +172,125 @@ const Calendario = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendário */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Calendário
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-md border"
-            />
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Calendário Mini e Filtros */}
+        <div className="lg:col-span-1 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4" />
+                Calendário
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded-md border scale-90"
+              />
+            </CardContent>
+          </Card>
 
-        {/* Lista de Consultas do Dia */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Consultas do Dia
-              {selectedDate && (
-                <span className="text-base font-normal text-muted-foreground">
-                  - {selectedDate.toLocaleDateString('pt-BR')}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {todayAppointments.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma consulta agendada para este dia</p>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Tipos de Consulta</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {appointmentTypes.map((type) => (
+                <div key={type.name} className="flex items-center gap-2 text-sm">
+                  <div className={cn("w-3 h-3 rounded-sm border", type.color)}></div>
+                  <span>{type.name}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Agenda Semanal */}
+        <div className="lg:col-span-3">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Agenda Semanal
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => navigateWeek('prev')}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm font-medium">
+                    {weekDays[0]?.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} - {weekDays[6]?.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => navigateWeek('next')}>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {todayAppointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => setSelectedAppointment(appointment)}
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-medium text-lg">
-                          {appointment.patientName}
-                        </span>
-                        <Badge variant={appointment.hasInsurance ? 'default' : 'secondary'}>
-                          {appointment.hasInsurance ? 'Com Seguro' : 'Particular'}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {appointment.time}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {appointment.location.split(' - ')[0]}
-                        </div>
-                        {appointment.documents.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <FileText className="h-4 w-4" />
-                            {appointment.documents.length} documento(s)
-                          </div>
-                        )}
-                      </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="grid grid-cols-8 border-b">
+                <div className="p-3 border-r bg-muted/30 text-xs font-medium"></div>
+                {weekDays.map((day, index) => (
+                  <div key={day.toISOString()} className="p-3 border-r bg-muted/30 text-center">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      {weekDayNames[index]}
                     </div>
-                    <Button variant="outline" size="sm">
-                      Ver Detalhes
-                    </Button>
+                    <div className={cn(
+                      "text-sm font-medium mt-1",
+                      day.toDateString() === new Date().toDateString() && "text-primary"
+                    )}>
+                      {day.getDate()}
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+
+              <div className="grid grid-cols-8 relative">
+                {/* Coluna de horários */}
+                <div className="border-r">
+                  {timeSlots.map((time) => (
+                    <div key={time} className="h-16 border-b p-2 text-xs text-muted-foreground flex items-center">
+                      {time}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Colunas dos dias */}
+                {weekDays.map((day) => (
+                  <div key={day.toISOString()} className="border-r relative">
+                    {timeSlots.map((time) => (
+                      <div key={time} className="h-16 border-b"></div>
+                    ))}
+                    
+                    {/* Consultas do dia */}
+                    {getAppointmentsForDate(day).map((appointment) => (
+                      <div
+                        key={appointment.id}
+                        className={cn(
+                          "absolute left-1 right-1 p-1 rounded text-xs cursor-pointer border",
+                          getAppointmentColor(appointment.type),
+                          "hover:opacity-80 transition-opacity"
+                        )}
+                        style={{
+                          top: `${getAppointmentPosition(appointment.time)}px`,
+                          height: '56px', // Altura fixa para as consultas
+                          zIndex: 10
+                        }}
+                        onClick={() => setSelectedAppointment(appointment)}
+                      >
+                        <div className="font-medium truncate">{appointment.time}</div>
+                        <div className="truncate">{appointment.patientName}</div>
+                        <div className="truncate text-xs opacity-75">{appointment.type}</div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Modal de Detalhes da Consulta */}
