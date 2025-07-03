@@ -199,7 +199,13 @@ const Calendario = () => {
     return absences.filter(absence => {
       const absenceStart = new Date(absence.startDate);
       const absenceEnd = new Date(absence.endDate);
-      return date >= absenceStart && date <= absenceEnd;
+      
+      // Normalizar as datas para comparação (ignorar horas)
+      const compareDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const compareStart = new Date(absenceStart.getFullYear(), absenceStart.getMonth(), absenceStart.getDate());
+      const compareEnd = new Date(absenceEnd.getFullYear(), absenceEnd.getMonth(), absenceEnd.getDate());
+      
+      return compareDate >= compareStart && compareDate <= compareEnd;
     });
   };
 
@@ -357,27 +363,30 @@ const Calendario = () => {
                     ))}
                     
                     {/* Ausências do dia */}
-                    {getAbsencesForDate(day).map((absence) => (
-                      <div
-                        key={absence.id}
-                        className="absolute left-1 right-1 p-1 rounded text-xs bg-red-100 text-red-800 border border-red-200 opacity-75"
-                        style={{
-                          top: absence.startTime ? `${getAppointmentPosition(absence.startTime)}px` : '0px',
-                          height: absence.startTime && absence.endTime ? 
-                            `${getAppointmentPosition(absence.endTime) - getAppointmentPosition(absence.startTime)}px` : 
-                            '100%',
-                          zIndex: 5
-                        }}
-                      >
-                        <div className="font-medium truncate">Ausência</div>
-                        <div className="truncate">{absence.type}</div>
-                        {absence.startTime && absence.endTime && (
-                          <div className="truncate text-xs opacity-75">
-                            {absence.startTime} - {absence.endTime}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                    {getAbsencesForDate(day).map((absence) => {
+                      const isSameDay = absence.startDate.toDateString() === absence.endDate.toDateString();
+                      return (
+                        <div
+                          key={absence.id}
+                          className="absolute left-1 right-1 p-1 rounded text-xs bg-red-100 text-red-800 border border-red-200 opacity-90"
+                          style={{
+                            top: isSameDay && absence.startTime ? `${getAppointmentPosition(absence.startTime)}px` : '0px',
+                            height: isSameDay && absence.startTime && absence.endTime ? 
+                              `${getAppointmentPosition(absence.endTime) - getAppointmentPosition(absence.startTime)}px` : 
+                              '100%',
+                            zIndex: 5
+                          }}
+                        >
+                          <div className="font-medium truncate">Ausência</div>
+                          <div className="truncate">{absence.type}</div>
+                          {isSameDay && absence.startTime && absence.endTime && (
+                            <div className="truncate text-xs opacity-75">
+                              {absence.startTime} - {absence.endTime}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
 
                     {/* Consultas do dia */}
                     {getAppointmentsForDate(day).map((appointment) => (

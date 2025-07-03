@@ -68,11 +68,13 @@ export const NewAbsenceForm = ({ onClose, onAbsenceAdded }: NewAbsenceFormProps)
     const absence = {
       id: Math.random().toString(36).substr(2, 9),
       type: absenceType,
-      startDate,
-      endDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       startTime,
       endTime,
     };
+
+    console.log('Registrando ausência:', absence); // Debug
 
     // Callback para adicionar a ausência ao componente pai
     if (onAbsenceAdded) {
