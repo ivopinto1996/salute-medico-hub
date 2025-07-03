@@ -19,8 +19,8 @@ export const NewAbsenceForm = ({ onClose, onAbsenceAdded }: NewAbsenceFormProps)
   const [absenceType, setAbsenceType] = useState('');
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [startTime, setStartTime] = useState('08:00');
+  const [endTime, setEndTime] = useState('18:00');
 
   const absenceTypes = [
     'Férias',
@@ -38,10 +38,10 @@ export const NewAbsenceForm = ({ onClose, onAbsenceAdded }: NewAbsenceFormProps)
   ];
 
   const handleSubmit = () => {
-    if (!absenceType || !startDate || !endDate) {
+    if (!absenceType || !startDate || !endDate || !startTime || !endTime) {
       toast({
         title: "Erro",
-        description: "Por favor, preencha todos os campos obrigatórios.",
+        description: "Por favor, preencha todos os campos.",
         variant: "destructive",
       });
       return;
@@ -56,15 +56,13 @@ export const NewAbsenceForm = ({ onClose, onAbsenceAdded }: NewAbsenceFormProps)
       return;
     }
 
-    if (startDate.toDateString() === endDate.toDateString() && startTime && endTime) {
-      if (startTime >= endTime) {
-        toast({
-          title: "Erro",
-          description: "A hora de início deve ser anterior à hora de fim.",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (startDate.toDateString() === endDate.toDateString() && startTime >= endTime) {
+      toast({
+        title: "Erro",
+        description: "A hora de início deve ser anterior à hora de fim no mesmo dia.",
+        variant: "destructive",
+      });
+      return;
     }
 
     const absence = {
@@ -108,92 +106,91 @@ export const NewAbsenceForm = ({ onClose, onAbsenceAdded }: NewAbsenceFormProps)
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>Data de Início</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !startDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {startDate ? format(startDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+          <Label>Data e Hora de Início</Label>
+          <div className="space-y-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+            <Select value={startTime} onValueChange={setStartTime}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecionar hora" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeSlots.map((time) => (
+                  <SelectItem key={time} value={time}>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      {time}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div>
-          <Label>Data de Fim</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !endDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {endDate ? format(endDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-
-      {/* Campos de Hora (opcionais) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label>Hora de Início (opcional)</Label>
-          <Select value={startTime} onValueChange={setStartTime}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecionar hora" />
-            </SelectTrigger>
-            <SelectContent>
-              {timeSlots.map((time) => (
-                <SelectItem key={time} value={time}>
-                  {time}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Hora de Fim (opcional)</Label>
-          <Select value={endTime} onValueChange={setEndTime}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecionar hora" />
-            </SelectTrigger>
-            <SelectContent>
-              {timeSlots.map((time) => (
-                <SelectItem key={time} value={time}>
-                  {time}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label>Data e Hora de Fim</Label>
+          <div className="space-y-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+            <Select value={endTime} onValueChange={setEndTime}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecionar hora" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeSlots.map((time) => (
+                  <SelectItem key={time} value={time}>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      {time}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
