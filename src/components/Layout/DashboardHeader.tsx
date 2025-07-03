@@ -175,7 +175,7 @@ export const DashboardHeader = () => {
                   </div>
                   <div>
                     <h2 className="font-semibold text-lg">Medclic</h2>
-                    <p className="text-sm text-muted-foreground">Sistema da Agenda Médica</p>
+                    <p className="text-sm text-white">Sistema da Agenda Médica</p>
                   </div>
                 </div>
                 <Button

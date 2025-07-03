@@ -53,7 +53,7 @@ export const DashboardSidebar = () => {
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
               <h2 className="font-semibold text-lg truncate">Medclic</h2>
-              <p className="text-sm text-muted-foreground truncate">Sistema da Agenda Médica</p>
+              <p className="text-sm text-sidebar-foreground truncate">Sistema da Agenda Médica</p>
             </div>
           )}
         </div>
