@@ -45,7 +45,7 @@ export const DashboardSidebar = () => {
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
             <img 
-              src="/lovable-uploads/c177b398-b785-4255-9c4c-110d96675c01.png" 
+              src="/logo-sidebar.png" 
               alt="Portal Logo" 
               className="h-8 w-8 object-contain" 
             />
