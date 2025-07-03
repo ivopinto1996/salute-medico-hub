@@ -4,20 +4,23 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 interface NewAbsenceFormProps {
   onClose: () => void;
+  onAbsenceAdded?: (absence: any) => void;
 }
 
-export const NewAbsenceForm = ({ onClose }: NewAbsenceFormProps) => {
+export const NewAbsenceForm = ({ onClose, onAbsenceAdded }: NewAbsenceFormProps) => {
   const { toast } = useToast();
   const [absenceType, setAbsenceType] = useState('');
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
 
   const absenceTypes = [
     'Férias',
@@ -28,11 +31,17 @@ export const NewAbsenceForm = ({ onClose }: NewAbsenceFormProps) => {
     'Outros'
   ];
 
+  const timeSlots = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+    '16:00', '16:30', '17:00', '17:30', '18:00'
+  ];
+
   const handleSubmit = () => {
     if (!absenceType || !startDate || !endDate) {
       toast({
         title: "Erro",
-        description: "Por favor, preencha todos os campos.",
+        description: "Por favor, preencha todos os campos obrigatórios.",
         variant: "destructive",
       });
       return;
@@ -47,7 +56,31 @@ export const NewAbsenceForm = ({ onClose }: NewAbsenceFormProps) => {
       return;
     }
 
-    // Aqui seria implementada a lógica para salvar a ausência
+    if (startDate.toDateString() === endDate.toDateString() && startTime && endTime) {
+      if (startTime >= endTime) {
+        toast({
+          title: "Erro",
+          description: "A hora de início deve ser anterior à hora de fim.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const absence = {
+      id: Math.random().toString(36).substr(2, 9),
+      type: absenceType,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+    };
+
+    // Callback para adicionar a ausência ao componente pai
+    if (onAbsenceAdded) {
+      onAbsenceAdded(absence);
+    }
+
     toast({
       title: "Ausência registrada",
       description: "Sua ausência foi registrada com sucesso.",
@@ -126,6 +159,41 @@ export const NewAbsenceForm = ({ onClose }: NewAbsenceFormProps) => {
               />
             </PopoverContent>
           </Popover>
+        </div>
+      </div>
+
+      {/* Campos de Hora (opcionais) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label>Hora de Início (opcional)</Label>
+          <Select value={startTime} onValueChange={setStartTime}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecionar hora" />
+            </SelectTrigger>
+            <SelectContent>
+              {timeSlots.map((time) => (
+                <SelectItem key={time} value={time}>
+                  {time}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Hora de Fim (opcional)</Label>
+          <Select value={endTime} onValueChange={setEndTime}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecionar hora" />
+            </SelectTrigger>
+            <SelectContent>
+              {timeSlots.map((time) => (
+                <SelectItem key={time} value={time}>
+                  {time}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

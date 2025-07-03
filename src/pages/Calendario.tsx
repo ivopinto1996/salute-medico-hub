@@ -24,6 +24,15 @@ interface Appointment {
   type: string;
 }
 
+interface Absence {
+  id: string;
+  type: string;
+  startDate: Date;
+  endDate: Date;
+  startTime?: string;
+  endTime?: string;
+}
+
 const Calendario = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
@@ -33,6 +42,7 @@ const Calendario = () => {
   const [selectedAppointmentTypes, setSelectedAppointmentTypes] = useState<string[]>([
     'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência'
   ]);
+  const [absences, setAbsences] = useState<Absence[]>([]);
 
   // Dados simulados de consultas com mais variedade
   const appointments: Appointment[] = [
@@ -181,6 +191,18 @@ const Calendario = () => {
     return appointmentType?.color || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
+  const handleAbsenceAdded = (absence: Absence) => {
+    setAbsences(prev => [...prev, absence]);
+  };
+
+  const getAbsencesForDate = (date: Date) => {
+    return absences.filter(absence => {
+      const absenceStart = new Date(absence.startDate);
+      const absenceEnd = new Date(absence.endDate);
+      return date >= absenceStart && date <= absenceEnd;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -217,7 +239,10 @@ const Calendario = () => {
               <DialogHeader>
                 <DialogTitle>Registrar Nova Ausência</DialogTitle>
               </DialogHeader>
-              <NewAbsenceForm onClose={() => setShowNewAbsence(false)} />
+              <NewAbsenceForm 
+                onClose={() => setShowNewAbsence(false)} 
+                onAbsenceAdded={handleAbsenceAdded}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -331,6 +356,29 @@ const Calendario = () => {
                       <div key={time} className="h-16 border-b"></div>
                     ))}
                     
+                    {/* Ausências do dia */}
+                    {getAbsencesForDate(day).map((absence) => (
+                      <div
+                        key={absence.id}
+                        className="absolute left-1 right-1 p-1 rounded text-xs bg-red-100 text-red-800 border border-red-200 opacity-75"
+                        style={{
+                          top: absence.startTime ? `${getAppointmentPosition(absence.startTime)}px` : '0px',
+                          height: absence.startTime && absence.endTime ? 
+                            `${getAppointmentPosition(absence.endTime) - getAppointmentPosition(absence.startTime)}px` : 
+                            '100%',
+                          zIndex: 5
+                        }}
+                      >
+                        <div className="font-medium truncate">Ausência</div>
+                        <div className="truncate">{absence.type}</div>
+                        {absence.startTime && absence.endTime && (
+                          <div className="truncate text-xs opacity-75">
+                            {absence.startTime} - {absence.endTime}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
                     {/* Consultas do dia */}
                     {getAppointmentsForDate(day).map((appointment) => (
                       <div
