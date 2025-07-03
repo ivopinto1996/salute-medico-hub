@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle } from 'lucide-react';
+import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Formacao {
@@ -55,6 +55,7 @@ const GestaoPerfilPublico = () => {
   const { toast } = useToast();
   
   // Estados para os diferentes campos
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
   const [biografia, setBiografia] = useState('');
   const [idiomas, setIdiomas] = useState<string[]>(['Português']);
   const [formacoes, setFormacoes] = useState<Formacao[]>([]);
@@ -156,6 +157,21 @@ const GestaoPerfilPublico = () => {
     setFaqs(faqs.filter(f => f.id !== id));
   };
 
+  const handleFotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFotoPerfil(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removerFoto = () => {
+    setFotoPerfil(null);
+  };
+
   const salvarPerfil = () => {
     toast({
       title: "Perfil salvo",
@@ -181,6 +197,54 @@ const GestaoPerfilPublico = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <Label>Foto de Perfil</Label>
+            <div className="flex items-center gap-4 mt-2">
+              {fotoPerfil ? (
+                <div className="relative">
+                  <img
+                    src={fotoPerfil}
+                    alt="Foto de perfil"
+                    className="w-24 h-24 rounded-full object-cover border"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                    onClick={removerFoto}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                  <Camera className="h-8 w-8 text-muted-foreground" />
+                </div>
+              )}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFotoUpload}
+                  className="hidden"
+                  id="foto-upload"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('foto-upload')?.click()}
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  {fotoPerfil ? 'Alterar Foto' : 'Adicionar Foto'}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Formatos aceitos: JPG, PNG, GIF (máx. 5MB)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
           <div>
             <Label htmlFor="biografia">Biografia/Apresentação</Label>
             <Textarea
