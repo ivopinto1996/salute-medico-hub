@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, User, LogOut, Menu, X } from 'lucide-react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,29 @@ export const DashboardHeader = () => {
   const { toast } = useToast();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (showMobileMenu) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileMenu]);
+
+  const handleCloseMobileMenu = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowMobileMenu(false);
+      setIsClosing(false);
+    }, 300); // Match animation duration
+  };
   
   // Simulação de dados do médico - em produção, vir do contexto/estado global
   const doctorData = JSON.parse(localStorage.getItem('doctorData') || '{}');
@@ -118,12 +141,16 @@ export const DashboardHeader = () => {
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden animate-fade-in"
-            onClick={() => setShowMobileMenu(false)}
+            className={`fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden ${
+              isClosing ? 'animate-fade-out' : 'animate-fade-in'
+            }`}
+            onClick={handleCloseMobileMenu}
           />
           
           {/* Sidebar */}
-          <div className="fixed top-0 left-0 h-full w-80 bg-background border-r shadow-lg z-50 md:hidden animate-slide-in-left">
+          <div className={`fixed top-0 left-0 h-full w-80 bg-background border-r shadow-lg z-50 md:hidden ${
+            isClosing ? 'animate-slide-out-left' : 'animate-slide-in-left'
+          }`}>
             {/* Sidebar Header */}
             <div className="border-b p-4">
               <div className="flex items-center justify-between">
@@ -139,7 +166,7 @@ export const DashboardHeader = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setShowMobileMenu(false)}
+                  onClick={handleCloseMobileMenu}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -155,7 +182,7 @@ export const DashboardHeader = () => {
                 <NavLink
                   key={item.title}
                   to={item.url}
-                  onClick={() => setShowMobileMenu(false)}
+                  onClick={handleCloseMobileMenu}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       isActive
