@@ -260,9 +260,9 @@ const Calendario = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        {/* Filtros */}
-        <div className="xl:col-span-1 space-y-6">
+      <div className="space-y-6">
+        {/* Filtros - Responsivos (lado a lado em md, escondidos em xl) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:hidden gap-4">
           {/* Calendário Mini com função de filtro */}
           <Card className="w-full">
             <CardHeader>
@@ -287,7 +287,6 @@ const Calendario = () => {
           </Card>
 
           {/* Filtro de Tipos de Consulta */}
-
           <Card>
             <CardHeader>
               <CardTitle className="text-sm">Tipos de Consulta</CardTitle>
@@ -296,11 +295,11 @@ const Calendario = () => {
               {appointmentTypes.map((type) => (
                 <div key={type.name} className="flex items-center space-x-2">
                   <Checkbox
-                    id={type.name}
+                    id={`md-${type.name}`}
                     checked={selectedAppointmentTypes.includes(type.name)}
                     onCheckedChange={() => toggleAppointmentType(type.name)}
                   />
-                  <label htmlFor={type.name} className="flex items-center gap-2 text-sm cursor-pointer">
+                  <label htmlFor={`md-${type.name}`} className="flex items-center gap-2 text-sm cursor-pointer">
                     <div className={cn("w-3 h-3 rounded-sm border", type.color)}></div>
                     <span>{type.name}</span>
                   </label>
@@ -310,8 +309,58 @@ const Calendario = () => {
           </Card>
         </div>
 
-        {/* Agenda Semanal */}
-        <div className="xl:col-span-3">
+        {/* Layout para telas grandes */}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          {/* Filtros - Apenas visível em xl */}
+          <div className="xl:col-span-1 space-y-6 hidden xl:block">
+            {/* Calendário Mini com função de filtro */}
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4" />
+                  Calendário
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    setSelectedDate(date);
+                    if (date) {
+                      navigateToWeekByDate(date);
+                    }
+                  }}
+                  className="rounded-md w-full"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Filtro de Tipos de Consulta */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Tipos de Consulta</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {appointmentTypes.map((type) => (
+                  <div key={type.name} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`xl-${type.name}`}
+                      checked={selectedAppointmentTypes.includes(type.name)}
+                      onCheckedChange={() => toggleAppointmentType(type.name)}
+                    />
+                    <label htmlFor={`xl-${type.name}`} className="flex items-center gap-2 text-sm cursor-pointer">
+                      <div className={cn("w-3 h-3 rounded-sm border", type.color)}></div>
+                      <span>{type.name}</span>
+                    </label>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Agenda Semanal */}
+          <div className="xl:col-span-3">
           <Card className="w-full">
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -422,6 +471,7 @@ const Calendario = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
 
