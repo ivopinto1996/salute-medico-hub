@@ -96,7 +96,7 @@ export const DashboardHeader = () => {
                 Bem-vindo, {getTreatment(doctorData.gender)} {getFullName(doctorData.name, doctorData.surname)}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {capitalize(doctorData.specialty || 'Especialidade')} - {doctorData.ordem || 'Ordem'} {doctorData.cedula || 'Número'}
+                {capitalize(doctorData.specialty || 'Especialidade')}
               </p>
             </div>
           </div>
