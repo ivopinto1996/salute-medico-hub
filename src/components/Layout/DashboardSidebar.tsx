@@ -26,7 +26,7 @@ const menuItems = [
   {
     title: 'Gestão de Perfil',
     url: '/gestao-perfil',
-    icon: User,
+    icon: Settings,
   },
 ];
 
