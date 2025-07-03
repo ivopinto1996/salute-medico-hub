@@ -166,7 +166,7 @@ const Conta = () => {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="phone">Prefixo + Número de Telemóvel</Label>
+            <Label htmlFor="phone">Contacto Telefónico</Label>
             <div className="flex gap-2">
               <Select defaultValue="+351">
                 <SelectTrigger className="w-20">
