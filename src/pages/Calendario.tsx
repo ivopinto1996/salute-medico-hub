@@ -283,9 +283,11 @@ const Calendario = () => {
         <div className="md:hidden space-y-2">
           <Accordion type="multiple" defaultValue={["calendar", "filters"]} className="w-full">
             <AccordionItem value="calendar">
-              <AccordionTrigger className="flex items-center gap-2 py-3">
-                <Clock className="h-4 w-4" />
-                Calendário
+              <AccordionTrigger className="flex items-center justify-between py-3 [&[data-state=open]>svg]:rotate-180">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>Calendário</span>
+                </div>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="pt-2">
@@ -327,8 +329,8 @@ const Calendario = () => {
             </AccordionItem>
 
             <AccordionItem value="filters">
-              <AccordionTrigger className="py-3">
-                Filtrar Consultas e Ausências
+              <AccordionTrigger className="flex items-center justify-between py-3 [&[data-state=open]>svg]:rotate-180">
+                <span>Filtrar Consultas e Ausências</span>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3 pt-2">
