@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Calendario from "./pages/Calendario";
 import Documentos from "./pages/Documentos";
 import Conta from "./pages/Conta";
+import GestaoPerfilPublico from "./pages/GestaoPerfilPublico";
 import { DashboardLayout } from "./components/Layout/DashboardLayout";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/calendario" element={<Calendario />} />
             <Route path="/documentos" element={<Documentos />} />
             <Route path="/conta" element={<Conta />} />
+            <Route path="/gestao-perfil" element={<GestaoPerfilPublico />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

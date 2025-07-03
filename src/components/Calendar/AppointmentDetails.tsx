@@ -148,7 +148,7 @@ export const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsP
           Fechar
         </Button>
         <Button variant="outline">
-          Editar Consulta
+          Editar Data/Hora
         </Button>
         <Button variant="destructive">
           Cancelar Consulta
