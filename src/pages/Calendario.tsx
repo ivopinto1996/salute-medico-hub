@@ -245,8 +245,8 @@ const Calendario = () => {
           <Dialog open={showNewAppointment} onOpenChange={setShowNewAppointment}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Nova Consulta</span>
+                <Plus className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Nova Consulta</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
@@ -260,8 +260,8 @@ const Calendario = () => {
           <Dialog open={showNewAbsence} onOpenChange={setShowNewAbsence}>
             <DialogTrigger asChild>
               <Button variant="secondary">
-                <CalendarDaysIcon className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Nova Ausência</span>
+                <CalendarDaysIcon className="h-4 w-4 lg:mr-2" />
+                <span className="hidden lg:inline">Nova Ausência</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
