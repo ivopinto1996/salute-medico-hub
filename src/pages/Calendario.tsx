@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AppointmentDetails } from '@/components/Calendar/AppointmentDetails';
 import { NewAppointmentForm } from '@/components/Calendar/NewAppointmentForm';
 import { NewAbsenceForm } from '@/components/Calendar/NewAbsenceForm';
+import { AbsenceDetails } from '@/components/Calendar/AbsenceDetails';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -43,6 +44,7 @@ const Calendario = () => {
     'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência'
   ]);
   const [absences, setAbsences] = useState<Absence[]>([]);
+  const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
 
   // Dados simulados de consultas com mais variedade
   const appointments: Appointment[] = [
@@ -193,6 +195,10 @@ const Calendario = () => {
 
   const handleAbsenceAdded = (absence: Absence) => {
     setAbsences(prev => [...prev, absence]);
+  };
+
+  const handleDeleteAbsence = (absenceId: string) => {
+    setAbsences(prev => prev.filter(absence => absence.id !== absenceId));
   };
 
   const getAbsencesForDate = (date: Date) => {
@@ -368,7 +374,7 @@ const Calendario = () => {
                       return (
                         <div
                           key={absence.id}
-                          className="absolute left-1 right-1 p-1 rounded text-xs bg-red-100 text-red-800 border border-red-200 opacity-90"
+                          className="absolute left-1 right-1 p-1 rounded text-xs bg-red-100 text-red-800 border border-red-200 opacity-90 cursor-pointer hover:opacity-75 transition-opacity"
                           style={{
                             top: isSameDay && absence.startTime ? `${getAppointmentPosition(absence.startTime)}px` : '0px',
                             height: isSameDay && absence.startTime && absence.endTime ? 
@@ -376,6 +382,7 @@ const Calendario = () => {
                               '100%',
                             zIndex: 5
                           }}
+                          onClick={() => setSelectedAbsence(absence)}
                         >
                           <div className="font-medium truncate">Ausência</div>
                           <div className="truncate">{absence.type}</div>
@@ -434,6 +441,14 @@ const Calendario = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Modal de Detalhes da Ausência */}
+      <AbsenceDetails
+        absence={selectedAbsence}
+        isOpen={!!selectedAbsence}
+        onClose={() => setSelectedAbsence(null)}
+        onDelete={handleDeleteAbsence}
+      />
     </div>
   );
 };
