@@ -1,4 +1,4 @@
-import { Calendar, FileText, Settings, User } from 'lucide-react';
+import { Calendar, FileText, Info, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -21,7 +21,7 @@ export const menuItems = [
   {
     title: 'O meu perfil',
     url: '/gestao-perfil',
-    icon: User,
+    icon: Info,
   },
   {
     title: 'Documentos',
