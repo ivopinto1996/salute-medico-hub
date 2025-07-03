@@ -43,11 +43,11 @@ export const DashboardHeader = () => {
       <header className="border-b bg-background px-6 py-3 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Hamburger Menu - visible only below 1024px */}
+            {/* Hamburger Menu - visible only below 768px */}
             <Button
               variant="ghost"
               size="icon"
-              className="block lg:hidden"
+              className="block md:hidden"
               onClick={() => setShowMobileMenu(!showMobileMenu)}
             >
               {showMobileMenu ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -115,7 +115,7 @@ export const DashboardHeader = () => {
 
       {/* Mobile Navigation Menu */}
       {showMobileMenu && (
-        <div className="lg:hidden bg-background border-b shadow-lg absolute top-full left-0 right-0 z-40">
+        <div className="md:hidden bg-background border-b shadow-lg absolute top-full left-0 right-0 z-40">
           <nav className="p-4 space-y-2">
             {menuItems.map((item) => (
               <NavLink
