@@ -73,18 +73,14 @@ export const DashboardSidebar = () => {
                     <NavLink
                       to={item.url}
                       className={({ isActive }) =>
-                        `flex items-center transition-colors rounded-lg ${
-                          isCollapsed 
-                            ? 'justify-center p-3 w-full h-12' 
-                            : 'gap-3 px-3 py-2'
-                        } ${
+                        `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                           isActive
                             ? 'bg-primary text-primary-foreground'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                         }`
                       }
                     >
-                      <item.icon className={isCollapsed ? "h-6 w-6" : "h-4 w-4"} />
+                      <item.icon className="h-4 w-4" />
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
