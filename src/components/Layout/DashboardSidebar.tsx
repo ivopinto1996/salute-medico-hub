@@ -24,7 +24,7 @@ const menuItems = [
     icon: FileText,
   },
   {
-    title: 'Gestão de Perfil',
+    title: 'Portfólio profissional',
     url: '/gestao-perfil',
     icon: Settings,
   },
