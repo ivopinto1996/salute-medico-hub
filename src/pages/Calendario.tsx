@@ -30,7 +30,6 @@ const Calendario = () => {
   const [showNewAppointment, setShowNewAppointment] = useState(false);
   const [showNewAbsence, setShowNewAbsence] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [calendarFilterDate, setCalendarFilterDate] = useState<Date | undefined>(new Date());
   const [selectedAppointmentTypes, setSelectedAppointmentTypes] = useState<string[]>([
     'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência'
   ]);
@@ -227,47 +226,7 @@ const Calendario = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Filtros */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Date Picker para filtro */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <CalendarIcon className="h-4 w-4" />
-                Filtro por Data
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !calendarFilterDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {calendarFilterDate ? format(calendarFilterDate, "dd/MM/yyyy") : <span>Selecionar data</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={calendarFilterDate}
-                    onSelect={(date) => {
-                      setCalendarFilterDate(date);
-                      if (date) {
-                        navigateToWeekByDate(date);
-                      }
-                    }}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </CardContent>
-          </Card>
-
-          {/* Calendário Mini */}
+          {/* Calendário Mini com função de filtro */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm">
@@ -279,7 +238,12 @@ const Calendario = () => {
               <Calendar
                 mode="single"
                 selected={selectedDate}
-                onSelect={setSelectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date);
+                  if (date) {
+                    navigateToWeekByDate(date);
+                  }
+                }}
                 className="rounded-md border scale-90"
               />
             </CardContent>
