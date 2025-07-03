@@ -234,7 +234,7 @@ const Calendario = () => {
                 Calendário
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-3">
+            <CardContent className="p-0">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -244,7 +244,7 @@ const Calendario = () => {
                     navigateToWeekByDate(date);
                   }
                 }}
-                className="w-full mx-auto [&>div]:w-full [&_table]:w-full [&_td]:w-full [&_button]:w-full [&_button]:h-10"
+                className="rounded-md w-full p-3"
               />
             </CardContent>
           </Card>
