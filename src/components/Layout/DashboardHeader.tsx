@@ -113,29 +113,64 @@ export const DashboardHeader = () => {
         </div>
       </header>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Sidebar Overlay */}
       {showMobileMenu && (
-        <div className="md:hidden bg-background border-b shadow-lg absolute top-full left-0 right-0 z-40">
-          <nav className="p-4 space-y-2">
-            {menuItems.map((item) => (
-              <NavLink
-                key={item.title}
-                to={item.url}
-                onClick={() => setShowMobileMenu(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`
-                }
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.title}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+            onClick={() => setShowMobileMenu(false)}
+          />
+          
+          {/* Sidebar */}
+          <div className="fixed top-0 left-0 h-full w-80 bg-background border-r shadow-lg z-50 md:hidden">
+            {/* Sidebar Header */}
+            <div className="border-b p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <img src="/lovable-uploads/c177b398-b785-4255-9c4c-110d96675c01.png" alt="Portal Logo" className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-lg">Medclic</h2>
+                    <p className="text-sm text-muted-foreground">Sistema da Agenda Médica</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Navigation Menu */}
+            <nav className="p-4 space-y-2">
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">Navegação Principal</h3>
+              </div>
+              {menuItems.map((item) => (
+                <NavLink
+                  key={item.title}
+                  to={item.url}
+                  onClick={() => setShowMobileMenu(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    }`
+                  }
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+        </>
       )}
     </>
   );
