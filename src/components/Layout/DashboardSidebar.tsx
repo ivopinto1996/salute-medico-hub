@@ -1,4 +1,4 @@
-import { Calendar, FileText, Info, User, Expand } from 'lucide-react';
+import { Calendar, FileText, Info, User, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -95,7 +95,11 @@ export const DashboardSidebar = () => {
             onClick={toggleSidebar}
             className="h-6 w-6"
           >
-            <Expand className="h-4 w-4" />
+            {isCollapsed ? (
+              <ChevronsRight className="h-4 w-4" />
+            ) : (
+              <ChevronsLeft className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </SidebarFooter>
