@@ -19,14 +19,14 @@ export const menuItems = [
     icon: Calendar,
   },
   {
+    title: 'O meu perfil',
+    url: '/gestao-perfil',
+    icon: Settings,
+  },
+  {
     title: 'Documentos',
     url: '/documentos',
     icon: FileText,
-  },
-  {
-    title: 'Portfólio profissional',
-    url: '/gestao-perfil',
-    icon: Settings,
   },
 ];
 
