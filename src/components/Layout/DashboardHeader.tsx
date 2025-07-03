@@ -43,9 +43,24 @@ export const DashboardHeader = () => {
     }, 300); // Match animation duration
   };
   
-  // Simulação de dados do médico - em produção, vir do contexto/estado global
+  // Dados do médico vindos da Gestão da Conta
   const doctorData = JSON.parse(localStorage.getItem('doctorData') || '{}');
   const unreadNotifications = 3; // Simulação
+  
+  // Função para determinar o tratamento baseado no gênero
+  const getTreatment = (gender: string) => {
+    return gender === 'feminino' ? 'Dra.' : 'Dr.';
+  };
+  
+  // Função para formatar o nome completo
+  const getFullName = (name: string, surname: string) => {
+    return `${name} ${surname}`.trim() || 'Doutor(a)';
+  };
+  
+  // Função para capitalizar a primeira letra
+  const capitalize = (text: string) => {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -78,10 +93,10 @@ export const DashboardHeader = () => {
 
             <div>
               <h1 className="text-xl font-semibold">
-                Bem-vindo, {doctorData.name || 'Doutor'}
+                Bem-vindo, {getTreatment(doctorData.gender)} {getFullName(doctorData.name, doctorData.surname)}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {doctorData.specialty} - {doctorData.crm}
+                {capitalize(doctorData.specialty || 'Especialidade')} - {doctorData.ordem || 'Ordem'} {doctorData.cedula || 'Número'}
               </p>
             </div>
           </div>

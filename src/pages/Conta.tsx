@@ -15,7 +15,21 @@ const Conta = () => {
 
   const handleSave = () => {
     setIsLoading(true);
+    
+    // Coletar dados do formulário
+    const formData = {
+      name: (document.getElementById('name') as HTMLInputElement)?.value || '',
+      surname: (document.getElementById('surname') as HTMLInputElement)?.value || '',
+      gender: (document.querySelector('[name="gender"]') as HTMLInputElement)?.value || 'masculino',
+      specialty: (document.querySelector('[name="specialty"]') as HTMLInputElement)?.value || '',
+      ordem: (document.getElementById('ordem') as HTMLInputElement)?.value || '',
+      cedula: (document.getElementById('cedula') as HTMLInputElement)?.value || '',
+    };
+    
     setTimeout(() => {
+      // Salvar no localStorage
+      localStorage.setItem('doctorData', JSON.stringify(formData));
+      
       toast({
         title: 'Dados salvos com sucesso',
         description: 'Suas informações foram atualizadas.',
@@ -292,7 +306,7 @@ const Conta = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="gender">Género</Label>
-                <Select defaultValue="masculino">
+                <Select defaultValue="masculino" name="gender">
                   <SelectTrigger>
                     <SelectValue placeholder="Selecionar género" />
                   </SelectTrigger>
@@ -355,7 +369,7 @@ const Conta = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="specialty">Especialidade</Label>
-              <Select defaultValue="cardiologia">
+              <Select defaultValue="cardiologia" name="specialty">
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar especialidade" />
                 </SelectTrigger>
