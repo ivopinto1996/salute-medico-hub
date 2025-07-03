@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -51,14 +52,6 @@ export const DashboardSidebar = () => {
               <p className="text-sm text-muted-foreground">Sistema da Agenda Médica</p>
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="ml-auto h-6 w-6"
-          >
-            <Expand className="h-4 w-4" />
-          </Button>
         </div>
       </SidebarHeader>
       
@@ -93,6 +86,19 @@ export const DashboardSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="p-2">
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-6 w-6"
+          >
+            <Expand className="h-4 w-4" />
+          </Button>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 };
