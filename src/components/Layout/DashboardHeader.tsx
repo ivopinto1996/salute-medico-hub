@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationsPanel } from '../Notifications/NotificationsPanel';
+import { PDFExportButton } from '../PDF/PDFExportButton';
 import { menuItems } from './DashboardSidebar';
 
 export const DashboardHeader = () => {
@@ -102,6 +103,9 @@ export const DashboardHeader = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Botão de Exportação PDF */}
+            <PDFExportButton />
+            
             {/* Botão de Notificações */}
             <div className="relative">
               <Button
