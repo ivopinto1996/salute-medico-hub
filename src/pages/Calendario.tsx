@@ -467,25 +467,39 @@ const Calendario = () => {
       ...style
     };
 
+    const handleClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setSelectedAppointment(appointment);
+    };
+
     return (
       <div
         ref={setNodeRef}
         style={combinedStyle}
-        {...listeners}
-        {...attributes}
         className={cn(
-          "absolute left-1 right-1 p-1 rounded text-xs cursor-grab border select-none",
+          "absolute left-1 right-1 p-1 rounded text-xs border select-none relative group",
           getAppointmentColor(appointment.type),
           isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
         )}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedAppointment(appointment);
-        }}
+        onClick={handleClick}
       >
-        <div className="font-medium truncate">{appointment.time}</div>
-        <div className="truncate">{appointment.patientName}</div>
-        <div className="truncate text-xs opacity-75">{appointment.type}</div>
+        {/* Área clicável principal para visualizar detalhes */}
+        <div className="cursor-pointer">
+          <div className="font-medium truncate">{appointment.time}</div>
+          <div className="truncate">{appointment.patientName}</div>
+          <div className="truncate text-xs opacity-75">{appointment.type}</div>
+        </div>
+        
+        {/* Handle para drag visível apenas no hover */}
+        <div
+          {...listeners}
+          {...attributes}
+          className="absolute top-0 right-0 w-4 h-4 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-bl-md flex items-center justify-center"
+          title="Arrastar para reagendar"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+        </div>
       </div>
     );
   };
