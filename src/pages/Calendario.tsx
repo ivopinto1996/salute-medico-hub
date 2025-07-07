@@ -468,8 +468,11 @@ const Calendario = () => {
     };
 
     const handleClick = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setSelectedAppointment(appointment);
+      // Só abrir detalhes se não estiver sendo arrastado
+      if (!isDragging) {
+        e.stopPropagation();
+        setSelectedAppointment(appointment);
+      }
     };
 
     return (
@@ -477,29 +480,26 @@ const Calendario = () => {
         ref={setNodeRef}
         style={combinedStyle}
         className={cn(
-          "absolute left-1 right-1 p-1 rounded text-xs border select-none relative group",
+          "absolute left-1 right-1 p-1 rounded text-xs border select-none relative",
           getAppointmentColor(appointment.type),
-          isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
+          isDragging ? "opacity-50 z-50 cursor-grabbing" : "hover:opacity-80 transition-opacity z-10 cursor-pointer"
         )}
         onClick={handleClick}
       >
-        {/* Área clicável principal para visualizar detalhes */}
-        <div className="cursor-pointer">
-          <div className="font-medium truncate">{appointment.time}</div>
-          <div className="truncate">{appointment.patientName}</div>
-          <div className="truncate text-xs opacity-75">{appointment.type}</div>
-        </div>
-        
-        {/* Handle para drag visível apenas no hover */}
-        <div
+        {/* Handle para drag - pequena área no canto superior direito */}
+        <div 
           {...listeners}
           {...attributes}
-          className="absolute top-0 right-0 w-4 h-4 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-bl-md flex items-center justify-center"
-          title="Arrastar para reagendar"
+          className="absolute top-0 right-0 w-4 h-4 cursor-grab hover:bg-black/10 rounded-bl flex items-center justify-center"
+          title="Arrastar para mover"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+          <div className="w-1.5 h-1.5 bg-current opacity-50 rounded-full"></div>
         </div>
+        
+        <div className="font-medium truncate pr-4">{appointment.time}</div>
+        <div className="truncate pr-4">{appointment.patientName}</div>
+        <div className="truncate text-xs opacity-75 pr-4">{appointment.type}</div>
       </div>
     );
   };
