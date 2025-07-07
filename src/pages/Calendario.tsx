@@ -12,8 +12,12 @@ import { AppointmentDetails } from '@/components/Calendar/AppointmentDetails';
 import { NewAppointmentForm } from '@/components/Calendar/NewAppointmentForm';
 import { NewAbsenceForm } from '@/components/Calendar/NewAbsenceForm';
 import { AbsenceDetails } from '@/components/Calendar/AbsenceDetails';
+import { DragDropConfirmationModal } from '@/components/Calendar/DragDropConfirmationModal';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useDraggable, useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { useToast } from '@/hooks/use-toast';
 
 interface Appointment {
   id: string;
@@ -47,6 +51,13 @@ const Calendario = () => {
   ]);
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
+  const [draggedAppointment, setDraggedAppointment] = useState<Appointment | null>(null);
+  const [pendingMove, setPendingMove] = useState<{
+    appointment: Appointment;
+    newDate: Date;
+    newTime: string;
+  } | null>(null);
+  const { toast } = useToast();
 
   // Dados simulados de consultas com mais variedade
   const appointments: Appointment[] = [
@@ -261,15 +272,142 @@ const Calendario = () => {
     });
   };
 
+  // Funções para drag and drop
+  const handleDragStart = (event: DragStartEvent) => {
+    const appointment = appointments.find(apt => apt.id === event.active.id);
+    if (appointment) {
+      setDraggedAppointment(appointment);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setDraggedAppointment(null);
+
+    if (!over || !active.id) return;
+
+    const draggedAppointment = appointments.find(apt => apt.id === active.id);
+    if (!draggedAppointment) return;
+
+    // Parse the drop zone id to get date and time
+    const dropData = over.id.toString().split('-');
+    if (dropData.length < 3) return;
+
+    const dayIndex = parseInt(dropData[1]);
+    const timeSlot = dropData[2];
+    
+    if (isNaN(dayIndex) || dayIndex < 0 || dayIndex >= weekDays.length) return;
+
+    const newDate = weekDays[dayIndex];
+    const newTime = timeSlot;
+
+    // Check if this is actually a different time/date
+    const isSameDate = draggedAppointment.date.toDateString() === newDate.toDateString();
+    const isSameTime = draggedAppointment.time === newTime;
+    
+    if (isSameDate && isSameTime) return;
+
+    // Set up confirmation modal
+    setPendingMove({
+      appointment: draggedAppointment,
+      newDate,
+      newTime
+    });
+  };
+
+  const confirmMove = () => {
+    if (!pendingMove) return;
+
+    handleUpdateAppointment(
+      pendingMove.appointment.id,
+      pendingMove.newDate,
+      pendingMove.newTime
+    );
+
+    toast({
+      title: "Consulta reagendada",
+      description: `Consulta de ${pendingMove.appointment.patientName} movida para ${format(pendingMove.newDate, 'dd/MM/yyyy')} às ${pendingMove.newTime}`,
+    });
+
+    setPendingMove(null);
+  };
+
+  const cancelMove = () => {
+    setPendingMove(null);
+  };
+
+  // Componente para slot que pode receber drop
+  const DroppableTimeSlot = ({ day, timeSlot, dayIndex }: { day: Date; timeSlot: string; dayIndex: number }) => {
+    const { setNodeRef, isOver } = useDroppable({
+      id: `drop-${dayIndex}-${timeSlot}`,
+    });
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={cn(
+          "h-16 border-b relative",
+          isOver && "bg-primary/10 border-primary/30"
+        )}
+      />
+    );
+  };
+
+  // Componente para consulta arrastável
+  const DraggableAppointment = ({ appointment, day }: { appointment: Appointment; day: Date }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      isDragging,
+    } = useDraggable({
+      id: appointment.id,
+    });
+
+    const style = transform ? {
+      transform: CSS.Translate.toString(transform),
+    } : undefined;
+
+    const combinedStyle = {
+      top: `${getAppointmentPosition(appointment.time)}px`,
+      height: '56px',
+      ...style
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={combinedStyle}
+        {...listeners}
+        {...attributes}
+        className={cn(
+          "absolute left-1 right-1 p-1 rounded text-xs cursor-grab border select-none",
+          getAppointmentColor(appointment.type),
+          isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
+        )}
+        onClick={(e) => {
+          e.stopPropagation();
+          setSelectedAppointment(appointment);
+        }}
+      >
+        <div className="font-medium truncate">{appointment.time}</div>
+        <div className="truncate">{appointment.patientName}</div>
+        <div className="truncate text-xs opacity-75">{appointment.type}</div>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Calendário de Consultas</h1>
-          <p className="text-muted-foreground">
-            Gerencie suas consultas e horários de atendimento
-          </p>
-        </div>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Calendário de Consultas</h1>
+            <p className="text-muted-foreground">
+              Gerencie suas consultas e horários de atendimento
+            </p>
+          </div>
         <div className="flex gap-2">
           <Dialog open={showNewAppointment} onOpenChange={setShowNewAppointment}>
             <DialogTrigger asChild>
@@ -575,10 +713,11 @@ const Calendario = () => {
                 </div>
 
                 {/* Colunas dos dias */}
-                {weekDays.map((day) => (
+                {weekDays.map((day, dayIndex) => (
                   <div key={day.toISOString()} className="border-r relative">
+                    {/* Droppable time slots */}
                     {timeSlots.map((time) => (
-                      <div key={time} className="h-16 border-b"></div>
+                      <DroppableTimeSlot key={time} day={day} timeSlot={time} dayIndex={dayIndex} />
                     ))}
                     
                     {/* Slot de Almoço */}
@@ -633,26 +772,9 @@ const Calendario = () => {
                       );
                     })}
 
-                    {/* Consultas do dia */}
+                    {/* Consultas do dia - agora draggable */}
                     {getAppointmentsForDate(day).map((appointment) => (
-                      <div
-                        key={appointment.id}
-                        className={cn(
-                          "absolute left-1 right-1 p-1 rounded text-xs cursor-pointer border",
-                          getAppointmentColor(appointment.type),
-                          "hover:opacity-80 transition-opacity"
-                        )}
-                        style={{
-                          top: `${getAppointmentPosition(appointment.time)}px`,
-                          height: '56px', // Altura fixa para as consultas
-                          zIndex: 10
-                        }}
-                        onClick={() => setSelectedAppointment(appointment)}
-                      >
-                        <div className="font-medium truncate">{appointment.time}</div>
-                        <div className="truncate">{appointment.patientName}</div>
-                        <div className="truncate text-xs opacity-75">{appointment.type}</div>
-                      </div>
+                      <DraggableAppointment key={appointment.id} appointment={appointment} day={day} />
                     ))}
                   </div>
                 ))}
@@ -688,7 +810,39 @@ const Calendario = () => {
         onClose={() => setSelectedAbsence(null)}
         onDelete={handleDeleteAbsence}
       />
-    </div>
+
+      {/* Modal de Confirmação de Drag and Drop */}
+      {pendingMove && (
+        <DragDropConfirmationModal
+          isOpen={!!pendingMove}
+          onClose={cancelMove}
+          onConfirm={confirmMove}
+          patientName={pendingMove.appointment.patientName}
+          originalDate={pendingMove.appointment.date}
+          originalTime={pendingMove.appointment.time}
+          newDate={pendingMove.newDate}
+          newTime={pendingMove.newTime}
+        />
+      )}
+
+      {/* Drag Overlay */}
+      <DragOverlay>
+        {draggedAppointment ? (
+          <div className={cn(
+            "p-1 rounded text-xs border shadow-lg",
+            getAppointmentColor(draggedAppointment.type),
+            "opacity-95"
+          )}
+          style={{ width: '150px', height: '56px' }}
+          >
+            <div className="font-medium truncate">{draggedAppointment.time}</div>
+            <div className="truncate">{draggedAppointment.patientName}</div>
+            <div className="truncate text-xs opacity-75">{draggedAppointment.type}</div>
+          </div>
+        ) : null}
+      </DragOverlay>
+      </div>
+    </DndContext>
   );
 };
 
