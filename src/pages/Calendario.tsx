@@ -248,7 +248,7 @@ const Calendario = () => {
     const [hours, minutes] = time.split(':').map(Number);
     const totalMinutes = hours * 60 + minutes;
     const startMinutes = 8 * 60; // 08:00
-    const position = ((totalMinutes - startMinutes) / 30) * 60; // 60px por slot de 30min
+    const position = ((totalMinutes - startMinutes) / 30) * 64; // 64px por slot de 30min
     return Math.max(0, position);
   };
 
@@ -471,10 +471,8 @@ const Calendario = () => {
       <div
         ref={setNodeRef}
         style={combinedStyle}
-        {...listeners}
-        {...attributes}
         className={cn(
-          "absolute left-1 right-1 p-1 rounded text-xs cursor-grab border select-none",
+          "absolute left-1 right-1 p-1 rounded text-xs border select-none relative",
           getAppointmentColor(appointment.type),
           isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
         )}
@@ -483,6 +481,16 @@ const Calendario = () => {
           setSelectedAppointment(appointment);
         }}
       >
+        {/* Área de drag no canto superior direito */}
+        <div
+          {...listeners}
+          {...attributes}
+          className="absolute top-0 right-0 w-4 h-4 cursor-grab hover:bg-black/10 rounded-br rounded-tl flex items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-2 h-2 bg-current opacity-50"></div>
+        </div>
+        
         <div className="font-medium truncate">{appointment.time}</div>
         <div className="truncate">{appointment.patientName}</div>
         <div className="truncate text-xs opacity-75">{appointment.type}</div>
