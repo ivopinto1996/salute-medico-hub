@@ -248,7 +248,7 @@ const Calendario = () => {
     const [hours, minutes] = time.split(':').map(Number);
     const totalMinutes = hours * 60 + minutes;
     const startMinutes = 8 * 60; // 08:00
-    const position = ((totalMinutes - startMinutes) / 30) * 60; // 60px por slot de 30min
+    const position = ((totalMinutes - startMinutes) / 30) * 64; // 64px por slot de 30min (h-16)
     return Math.max(0, position);
   };
 
