@@ -59,8 +59,8 @@ const Calendario = () => {
   } | null>(null);
   const { toast } = useToast();
 
-  // Dados simulados de consultas com mais variedade
-  const appointments: Appointment[] = [
+  // Dados simulados de consultas com mais variedade - agora como estado
+  const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: '1',
       patientName: 'Maria Silva',
@@ -121,7 +121,7 @@ const Calendario = () => {
       documents: ['Eletrocardiograma'],
       type: 'Retorno',
     },
-  ];
+  ]);
 
   const appointmentTypes = [
     { name: 'Consulta de Rotina', color: 'bg-blue-100 text-blue-800 border-blue-200', type: 'appointment' },
@@ -223,13 +223,20 @@ const Calendario = () => {
 
   // Funções para atualizar e cancelar consultas
   const handleUpdateAppointment = (appointmentId: string, newDate: Date, newTime: string) => {
-    // Aqui você implementaria a lógica para atualizar a consulta
-    console.log(`Atualizando consulta ${appointmentId} para ${newDate} às ${newTime}`);
+    setAppointments(prevAppointments => 
+      prevAppointments.map(appointment => 
+        appointment.id === appointmentId 
+          ? { ...appointment, date: newDate, time: newTime }
+          : appointment
+      )
+    );
   };
 
   const handleCancelAppointment = (appointmentId: string, reason: string) => {
-    // Aqui você implementaria a lógica para cancelar a consulta
-    console.log(`Cancelando consulta ${appointmentId} com motivo: ${reason}`);
+    setAppointments(prevAppointments => 
+      prevAppointments.filter(appointment => appointment.id !== appointmentId)
+    );
+    console.log(`Consulta ${appointmentId} cancelada com motivo: ${reason}`);
   };
 
   const getAppointmentPosition = (time: string) => {
