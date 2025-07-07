@@ -247,8 +247,11 @@ const Calendario = () => {
   const getAppointmentPosition = (time: string) => {
     const [hours, minutes] = time.split(':').map(Number);
     const totalMinutes = hours * 60 + minutes;
-    const startMinutes = 8 * 60; // 08:00
-    const position = ((totalMinutes - startMinutes) / 30) * 64; // 64px por slot de 30min (h-16)
+    const startMinutes = 8 * 60; // 08:00 (480 minutos)
+    const slotIndex = (totalMinutes - startMinutes) / 30; // Qual slot (0, 1, 2, etc)
+    const position = slotIndex * 64; // 64px por slot (h-16)
+    
+    console.log(`Consulta ${time}: slotIndex=${slotIndex}, position=${position}px`);
     return Math.max(0, position);
   };
 
