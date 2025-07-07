@@ -136,6 +136,34 @@ const Calendario = () => {
     '16:00', '16:30', '17:00', '17:30', '18:00'
   ];
 
+  // Simulação dos horários de trabalho do médico com slots de almoço
+  const doctorSchedule = {
+    'Segunda': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', ativo: true },
+    'Terça': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', ativo: true },
+    'Quarta': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', ativo: true },
+    'Quinta': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', ativo: true },
+    'Sexta': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', ativo: true },
+    'Sábado': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '16:00', ativo: false },
+    'Domingo': { manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '16:00', ativo: false },
+  };
+
+  const getDayName = (date: Date) => {
+    const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    return days[date.getDay()];
+  };
+
+  const getLunchBreakForDate = (date: Date) => {
+    const dayName = getDayName(date);
+    const schedule = doctorSchedule[dayName as keyof typeof doctorSchedule];
+    if (schedule && schedule.ativo) {
+      return {
+        start: schedule.manhaUltima,
+        end: schedule.tardePrimeira
+      };
+    }
+    return null;
+  };
+
   // Funções para navegação da semana
   const getWeekDays = (date: Date) => {
     const week = [];
@@ -552,6 +580,31 @@ const Calendario = () => {
                     {timeSlots.map((time) => (
                       <div key={time} className="h-16 border-b"></div>
                     ))}
+                    
+                    {/* Slot de Almoço */}
+                    {(() => {
+                      const lunchBreak = getLunchBreakForDate(day);
+                      if (lunchBreak) {
+                        return (
+                          <div
+                            className="absolute left-1 right-1 p-1 rounded text-xs bg-orange-100 text-orange-800 border border-orange-200 opacity-70 flex items-center justify-center"
+                            style={{
+                              top: `${getAppointmentPosition(lunchBreak.start)}px`,
+                              height: `${getAppointmentPosition(lunchBreak.end) - getAppointmentPosition(lunchBreak.start)}px`,
+                              zIndex: 3
+                            }}
+                          >
+                            <div className="font-medium text-center">
+                              <div>🍽️ Almoço</div>
+                              <div className="text-xs opacity-75">
+                                {lunchBreak.start} - {lunchBreak.end}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     
                     {/* Ausências do dia */}
                     {getAbsencesForDate(day).map((absence) => {

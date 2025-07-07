@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 
 interface Formacao {
@@ -26,8 +27,10 @@ interface Experiencia {
 
 interface HorarioTrabalho {
   dia: string;
-  inicio: string;
-  fim: string;
+  manhaPrimeira: string;
+  manhaUltima: string;
+  tardePrimeira: string;
+  tardeUltima: string;
   duracao: number;
   ativo: boolean;
 }
@@ -67,17 +70,19 @@ const GestaoPerfilPublico = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   
   const [horarioTrabalho, setHorarioTrabalho] = useState<HorarioTrabalho[]>([
-    { dia: 'Segunda', inicio: '09:00', fim: '18:00', duracao: 30, ativo: true },
-    { dia: 'Terça', inicio: '09:00', fim: '18:00', duracao: 30, ativo: true },
-    { dia: 'Quarta', inicio: '09:00', fim: '18:00', duracao: 30, ativo: true },
-    { dia: 'Quinta', inicio: '09:00', fim: '18:00', duracao: 30, ativo: true },
-    { dia: 'Sexta', inicio: '09:00', fim: '18:00', duracao: 30, ativo: true },
-    { dia: 'Sábado', inicio: '09:00', fim: '13:00', duracao: 30, ativo: false },
-    { dia: 'Domingo', inicio: '09:00', fim: '13:00', duracao: 30, ativo: false },
+    { dia: 'Segunda', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', duracao: 30, ativo: true },
+    { dia: 'Terça', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', duracao: 30, ativo: true },
+    { dia: 'Quarta', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', duracao: 30, ativo: true },
+    { dia: 'Quinta', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', duracao: 30, ativo: true },
+    { dia: 'Sexta', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '18:00', duracao: 30, ativo: true },
+    { dia: 'Sábado', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '16:00', duracao: 30, ativo: false },
+    { dia: 'Domingo', manhaPrimeira: '09:00', manhaUltima: '12:00', tardePrimeira: '13:00', tardeUltima: '16:00', duracao: 30, ativo: false },
   ]);
 
+  const [horarioPublico, setHorarioPublico] = useState(true);
+
   const idiomasDisponiveis = ['Português', 'Inglês', 'Espanhol', 'Francês', 'Alemão', 'Italiano'];
-  const duracaoSlots = [15, 30, 45, 60];
+  const duracaoSlots = [15, 20, 30, 45, 60];
   const segurosDisponiveis = ['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Golden Cross', 'NotreDame'];
 
   const adicionarFormacao = () => {
@@ -371,53 +376,106 @@ const GestaoPerfilPublico = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {horarioTrabalho.map((horario, index) => (
-              <div key={horario.dia} className="grid grid-cols-5 gap-3 items-center">
-                <Label className="font-medium">{horario.dia}</Label>
-                <Input
-                  type="time"
-                  value={horario.inicio}
-                  onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
-                    i === index ? { ...h, inicio: e.target.value } : h
-                  ))}
-                />
-                <Input
-                  type="time"
-                  value={horario.fim}
-                  onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
-                    i === index ? { ...h, fim: e.target.value } : h
-                  ))}
-                />
-                <Select value={horario.duracao.toString()} onValueChange={(value) => 
-                  setHorarioTrabalho(horarioTrabalho.map((h, i) => 
-                    i === index ? { ...h, duracao: parseInt(value) } : h
-                  ))
-                }>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {duracaoSlots.map((duracao) => (
-                      <SelectItem key={duracao} value={duracao.toString()}>
-                        {duracao} min
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={horario.ativo}
-                    onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
-                      i === index ? { ...h, ativo: e.target.checked } : h
-                    ))}
-                    className="mr-2"
-                  />
-                  <Label className="text-sm">Ativo</Label>
+          <div className="space-y-6">
+            <div>
+              <Label className="text-base font-medium">Partilhar horário publicamente</Label>
+              <p className="text-sm text-muted-foreground mb-3">
+                Escolha se deseja que os pacientes vejam seus horários de consulta
+              </p>
+              <RadioGroup value={horarioPublico.toString()} onValueChange={(value) => setHorarioPublico(value === 'true')}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="true" id="publico-sim" />
+                  <Label htmlFor="publico-sim">Sim, partilhar horário publicamente</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="false" id="publico-nao" />
+                  <Label htmlFor="publico-nao">Não, manter horário privado</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <Separator />
+
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-8 gap-3 mb-3 text-sm font-medium">
+                <Label>Dia</Label>
+                <Label className="text-center">Manhã - Início</Label>
+                <Label className="text-center">Manhã - Fim</Label>
+                <Label className="text-center">Tarde - Início</Label>
+                <Label className="text-center">Tarde - Fim</Label>
+                <Label className="text-center">Duração</Label>
+                <Label className="text-center">Ativo</Label>
+                <div></div>
               </div>
-            ))}
+              
+              {horarioTrabalho.map((horario, index) => (
+                <div key={horario.dia} className="grid grid-cols-1 md:grid-cols-8 gap-3 items-center mb-3 p-3 border rounded">
+                  <Label className="font-medium">{horario.dia}</Label>
+                  <Input
+                    type="time"
+                    value={horario.manhaPrimeira}
+                    onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
+                      i === index ? { ...h, manhaPrimeira: e.target.value } : h
+                    ))}
+                  />
+                  <Input
+                    type="time"
+                    value={horario.manhaUltima}
+                    onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
+                      i === index ? { ...h, manhaUltima: e.target.value } : h
+                    ))}
+                  />
+                  <Input
+                    type="time"
+                    value={horario.tardePrimeira}
+                    onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
+                      i === index ? { ...h, tardePrimeira: e.target.value } : h
+                    ))}
+                  />
+                  <Input
+                    type="time"
+                    value={horario.tardeUltima}
+                    onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
+                      i === index ? { ...h, tardeUltima: e.target.value } : h
+                    ))}
+                  />
+                  <Select value={horario.duracao.toString()} onValueChange={(value) => 
+                    setHorarioTrabalho(horarioTrabalho.map((h, i) => 
+                      i === index ? { ...h, duracao: parseInt(value) } : h
+                    ))
+                  }>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {duracaoSlots.map((duracao) => (
+                        <SelectItem key={duracao} value={duracao.toString()}>
+                          {duracao} min
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={horario.ativo}
+                      onChange={(e) => setHorarioTrabalho(horarioTrabalho.map((h, i) => 
+                        i === index ? { ...h, ativo: e.target.checked } : h
+                      ))}
+                      className="mr-2"
+                    />
+                    <Label className="text-sm">Ativo</Label>
+                  </div>
+                  <div className="text-center">
+                    {horario.ativo && horario.manhaPrimeira && horario.manhaUltima && horario.tardePrimeira && horario.tardeUltima && (
+                      <div className="text-xs text-muted-foreground">
+                        Almoço: {horario.manhaUltima} - {horario.tardePrimeira}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
