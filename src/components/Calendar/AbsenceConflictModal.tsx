@@ -11,6 +11,7 @@ import {
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useState } from 'react';
 
 interface Appointment {
@@ -49,15 +50,32 @@ export const AbsenceConflictModal = ({
   absence,
 }: AbsenceConflictModalProps) => {
   const [cancellationReason, setCancellationReason] = useState('');
+  const [customReason, setCustomReason] = useState('');
+
+  const cancellationReasons = [
+    'Emergência médica',
+    'Doença do médico',
+    'Compromisso urgente',
+    'Problema técnico/equipamento',
+    'Reagendamento solicitado pelo paciente',
+    'Outros'
+  ];
 
   const handleConfirm = () => {
-    onConfirm(cancellationReason);
+    if (!cancellationReason) return;
+    
+    const finalReason = cancellationReason === 'Outros' ? customReason : cancellationReason;
+    if (cancellationReason === 'Outros' && !customReason.trim()) return;
+    
+    onConfirm(finalReason);
     setCancellationReason('');
+    setCustomReason('');
   };
 
   const handleClose = () => {
     onClose();
     setCancellationReason('');
+    setCustomReason('');
   };
 
   return (
@@ -92,18 +110,32 @@ export const AbsenceConflictModal = ({
               </ul>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="cancellation-reason">
-                Motivo do cancelamento das consultas:
-              </Label>
-              <Textarea
-                id="cancellation-reason"
-                placeholder="Ex: Férias programadas, formação médica, etc."
-                value={cancellationReason}
-                onChange={(e) => setCancellationReason(e.target.value)}
-                className="min-h-[80px]"
-              />
+            <div className="space-y-3">
+              <Label>Motivo do cancelamento das consultas:</Label>
+              <RadioGroup value={cancellationReason} onValueChange={setCancellationReason}>
+                {cancellationReasons.map((reasonOption) => (
+                  <div key={reasonOption} className="flex items-center space-x-2">
+                    <RadioGroupItem value={reasonOption} id={reasonOption} />
+                    <Label htmlFor={reasonOption} className="text-sm cursor-pointer">
+                      {reasonOption}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
             </div>
+
+            {cancellationReason === 'Outros' && (
+              <div className="space-y-2">
+                <Label htmlFor="custom-reason">Especifique o motivo:</Label>
+                <Textarea
+                  id="custom-reason"
+                  placeholder="Descreva o motivo do cancelamento..."
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  className="min-h-[80px]"
+                />
+              </div>
+            )}
 
             <p className="text-sm text-muted-foreground">
               Deseja prosseguir com a criação da ausência e cancelamento das consultas?
@@ -114,7 +146,7 @@ export const AbsenceConflictModal = ({
           <AlertDialogCancel onClick={handleClose}>Cancelar</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleConfirm}
-            disabled={!cancellationReason.trim()}
+            disabled={!cancellationReason || (cancellationReason === 'Outros' && !customReason.trim())}
           >
             Confirmar e Cancelar Consultas
           </AlertDialogAction>
