@@ -7,7 +7,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CalendarIcon, Clock, Mail, Plus, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -46,8 +45,6 @@ export const NewAbsenceForm = ({
   const [conflictingAppointments, setConflictingAppointments] = useState<Appointment[]>([]);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [emailRecipients, setEmailRecipients] = useState<string[]>(['']);
-  const [emailSubject, setEmailSubject] = useState('');
-  const [emailMessage, setEmailMessage] = useState('');
 
   const absenceTypes = [
     'Férias',
@@ -96,8 +93,6 @@ export const NewAbsenceForm = ({
     // Aqui você precisará implementar a lógica de envio de email
     // Recomendo usar Supabase Edge Functions para isso
     console.log('Enviando emails para:', validEmails);
-    console.log('Assunto:', emailSubject);
-    console.log('Mensagem:', emailMessage);
     
     toast({
       title: "Emails enviados",
@@ -348,27 +343,6 @@ export const NewAbsenceForm = ({
               <Label className="text-sm font-medium">Enviar notificação por email</Label>
             </div>
             
-            <div>
-              <Label htmlFor="email-subject">Assunto do Email</Label>
-              <Input
-                id="email-subject"
-                placeholder="Assunto da notificação"
-                value={emailSubject}
-                onChange={(e) => setEmailSubject(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email-message">Mensagem</Label>
-              <Textarea
-                id="email-message"
-                placeholder="Mensagem a ser enviada..."
-                value={emailMessage}
-                onChange={(e) => setEmailMessage(e.target.value)}
-                rows={3}
-              />
-            </div>
-
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label>Destinatários</Label>
