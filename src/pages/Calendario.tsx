@@ -269,7 +269,13 @@ const Calendario = () => {
     return appointmentType?.color || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
+  const getAbsenceColor = (type: string) => {
+    const absenceType = absenceTypes.find(t => t.name === type);
+    return absenceType?.color || 'bg-red-100 text-red-800 border-red-200';
+  };
+
   const handleAbsenceAdded = (absence: Absence) => {
+    console.log('Adicionando ausência ao calendário:', absence);
     setAbsences(prev => [...prev, absence]);
   };
 
@@ -777,7 +783,10 @@ const Calendario = () => {
                       return (
                         <div
                           key={absence.id}
-                          className="absolute left-1 right-1 p-1 rounded text-xs bg-red-100 text-red-800 border border-red-200 opacity-90 cursor-pointer hover:opacity-75 transition-opacity"
+                          className={cn(
+                            "absolute left-1 right-1 p-1 rounded text-xs border opacity-90 cursor-pointer hover:opacity-75 transition-opacity",
+                            getAbsenceColor(absence.type)
+                          )}
                           style={{
                             top: isSameDay && absence.startTime ? `${getAppointmentPosition(absence.startTime)}px` : '0px',
                             height: isSameDay && absence.startTime && absence.endTime ? 
