@@ -13,7 +13,6 @@ import { NewAppointmentForm } from '@/components/Calendar/NewAppointmentForm';
 import { NewAbsenceForm } from '@/components/Calendar/NewAbsenceForm';
 import { AbsenceDetails } from '@/components/Calendar/AbsenceDetails';
 import { DragDropConfirmationModal } from '@/components/Calendar/DragDropConfirmationModal';
-import { AbsenceConflictModal } from '@/components/Calendar/AbsenceConflictModal';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useDraggable, useDroppable } from '@dnd-kit/core';
@@ -57,10 +56,6 @@ const Calendario = () => {
     appointment: Appointment;
     newDate: Date;
     newTime: string;
-  } | null>(null);
-  const [pendingAbsence, setPendingAbsence] = useState<{
-    absence: Absence;
-    conflictingAppointments: Appointment[];
   } | null>(null);
   const { toast } = useToast();
 
@@ -258,87 +253,7 @@ const Calendario = () => {
   };
 
   const handleAbsenceAdded = (absence: Absence) => {
-    // Verificar se há conflitos com consultas existentes
-    const conflictingAppointments = findConflictingAppointments(absence);
-    
-    if (conflictingAppointments.length > 0) {
-      // Se há conflitos, mostrar modal de confirmação
-      setPendingAbsence({ absence, conflictingAppointments });
-    } else {
-      // Se não há conflitos, adicionar a ausência diretamente
-      setAbsences(prev => [...prev, absence]);
-      toast({
-        title: "Ausência registrada",
-        description: "A ausência foi registrada com sucesso.",
-      });
-    }
-  };
-
-  const findConflictingAppointments = (absence: Absence): Appointment[] => {
-    const absenceStart = new Date(absence.startDate);
-    const absenceEnd = new Date(absence.endDate);
-    
-    return appointments.filter(appointment => {
-      const appointmentDate = new Date(appointment.date);
-      
-      // Normalizar datas para comparação (ignorar horas)
-      const appointmentDay = new Date(appointmentDate.getFullYear(), appointmentDate.getMonth(), appointmentDate.getDate());
-      const absenceStartDay = new Date(absenceStart.getFullYear(), absenceStart.getMonth(), absenceStart.getDate());
-      const absenceEndDay = new Date(absenceEnd.getFullYear(), absenceEnd.getMonth(), absenceEnd.getDate());
-      
-      // Verificar se a consulta está dentro do período da ausência
-      const isWithinDateRange = appointmentDay >= absenceStartDay && appointmentDay <= absenceEndDay;
-      
-      if (!isWithinDateRange) return false;
-      
-      // Se a ausência não tem horário específico, considera conflito em todo o dia
-      if (!absence.startTime || !absence.endTime) return true;
-      
-      // Se a ausência tem horário específico, verificar sobreposição de horários
-      const appointmentTime = appointment.time;
-      const absenceStartTime = absence.startTime;
-      const absenceEndTime = absence.endTime;
-      
-      // Converter horários para minutos para facilitar comparação
-      const getMinutes = (time: string) => {
-        const [hours, minutes] = time.split(':').map(Number);
-        return hours * 60 + minutes;
-      };
-      
-      const appointmentMinutes = getMinutes(appointmentTime);
-      const absenceStartMinutes = getMinutes(absenceStartTime);
-      const absenceEndMinutes = getMinutes(absenceEndTime);
-      
-      // Verificar se há sobreposição (assumindo consulta de 30 minutos)
-      const appointmentEndMinutes = appointmentMinutes + 30;
-      
-      return (appointmentMinutes < absenceEndMinutes && appointmentEndMinutes > absenceStartMinutes);
-    });
-  };
-
-  const confirmAbsenceWithCancellations = (cancellationReason: string) => {
-    if (!pendingAbsence) return;
-    
-    const { absence, conflictingAppointments } = pendingAbsence;
-    
-    // Cancelar as consultas conflitantes
-    conflictingAppointments.forEach(appointment => {
-      handleCancelAppointment(appointment.id, cancellationReason);
-    });
-    
-    // Adicionar a ausência
     setAbsences(prev => [...prev, absence]);
-    
-    toast({
-      title: "Ausência registrada",
-      description: `Ausência criada e ${conflictingAppointments.length} consulta${conflictingAppointments.length !== 1 ? 's' : ''} cancelada${conflictingAppointments.length !== 1 ? 's' : ''}.`,
-    });
-    
-    setPendingAbsence(null);
-  };
-
-  const cancelAbsenceCreation = () => {
-    setPendingAbsence(null);
   };
 
   const handleDeleteAbsence = (absenceId: string) => {
@@ -467,39 +382,25 @@ const Calendario = () => {
       ...style
     };
 
-    const handleClick = (e: React.MouseEvent) => {
-      // Só abrir detalhes se não estiver sendo arrastado
-      if (!isDragging) {
-        e.stopPropagation();
-        setSelectedAppointment(appointment);
-      }
-    };
-
     return (
       <div
         ref={setNodeRef}
         style={combinedStyle}
+        {...listeners}
+        {...attributes}
         className={cn(
-          "absolute left-1 right-1 p-1 rounded text-xs border select-none relative",
+          "absolute left-1 right-1 p-1 rounded text-xs cursor-grab border select-none",
           getAppointmentColor(appointment.type),
-          isDragging ? "opacity-50 z-50 cursor-grabbing" : "hover:opacity-80 transition-opacity z-10 cursor-pointer"
+          isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
         )}
-        onClick={handleClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          setSelectedAppointment(appointment);
+        }}
       >
-        {/* Handle para drag - pequena área no canto superior direito */}
-        <div 
-          {...listeners}
-          {...attributes}
-          className="absolute top-0 right-0 w-4 h-4 cursor-grab hover:bg-black/10 rounded-bl flex items-center justify-center"
-          title="Arrastar para mover"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="w-1.5 h-1.5 bg-current opacity-50 rounded-full"></div>
-        </div>
-        
-        <div className="font-medium truncate pr-4">{appointment.time}</div>
-        <div className="truncate pr-4">{appointment.patientName}</div>
-        <div className="truncate text-xs opacity-75 pr-4">{appointment.type}</div>
+        <div className="font-medium truncate">{appointment.time}</div>
+        <div className="truncate">{appointment.patientName}</div>
+        <div className="truncate text-xs opacity-75">{appointment.type}</div>
       </div>
     );
   };
@@ -928,17 +829,6 @@ const Calendario = () => {
           originalTime={pendingMove.appointment.time}
           newDate={pendingMove.newDate}
           newTime={pendingMove.newTime}
-        />
-      )}
-
-      {/* Modal de Conflito de Ausência */}
-      {pendingAbsence && (
-        <AbsenceConflictModal
-          isOpen={!!pendingAbsence}
-          onClose={cancelAbsenceCreation}
-          onConfirm={confirmAbsenceWithCancellations}
-          conflictingAppointments={pendingAbsence.conflictingAppointments}
-          absence={pendingAbsence.absence}
         />
       )}
 
