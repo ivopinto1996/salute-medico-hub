@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Clock, MapPin, FileText, User, CreditCard, Calendar } from 'lucide-react';
+import { Clock, MapPin, FileText, User, CreditCard, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { ChangeAppointmentTimeModal } from './ChangeAppointmentTimeModal';
 import { CancelAppointmentModal } from './CancelAppointmentModal';
 
@@ -17,6 +20,7 @@ interface Appointment {
   location: string;
   documents: string[];
   type: string;
+  status?: 'pending' | 'completed' | 'not_completed';
 }
 
 interface AppointmentDetailsProps {
@@ -24,16 +28,21 @@ interface AppointmentDetailsProps {
   onClose: () => void;
   onUpdateAppointment?: (appointmentId: string, newDate: Date, newTime: string) => void;
   onCancelAppointment?: (appointmentId: string, reason: string) => void;
+  onUpdateStatus?: (appointmentId: string, status: 'completed' | 'not_completed', reason?: string) => void;
 }
 
 export const AppointmentDetails = ({ 
   appointment, 
   onClose, 
   onUpdateAppointment, 
-  onCancelAppointment 
+  onCancelAppointment,
+  onUpdateStatus
 }: AppointmentDetailsProps) => {
+  const { toast } = useToast();
   const [showChangeTime, setShowChangeTime] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showNotCompletedModal, setShowNotCompletedModal] = useState(false);
+  const [notCompletedReason, setNotCompletedReason] = useState('');
 
   const handleDownloadDocument = (documentName: string) => {
     // Simulação de download - em produção, implementar download real
@@ -49,6 +58,56 @@ export const AppointmentDetails = ({
     onCancelAppointment?.(appointmentId, reason);
     setShowCancelModal(false);
     onClose();
+  };
+
+  const handleMarkCompleted = () => {
+    onUpdateStatus?.(appointment.id, 'completed');
+    toast({
+      title: "Consulta marcada como realizada",
+      description: "O status da consulta foi atualizado.",
+    });
+  };
+
+  const handleMarkNotCompleted = () => {
+    setShowNotCompletedModal(true);
+  };
+
+  const handleConfirmNotCompleted = () => {
+    if (!notCompletedReason) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione um motivo.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    onUpdateStatus?.(appointment.id, 'not_completed', notCompletedReason);
+    setShowNotCompletedModal(false);
+    setNotCompletedReason('');
+    toast({
+      title: "Consulta marcada como não realizada",
+      description: "O status da consulta foi atualizado.",
+    });
+  };
+
+  const notCompletedReasons = [
+    'O paciente não apareceu',
+    'Paciente cancelou em cima da hora',
+    'Emergência médica',
+    'Problemas técnicos',
+    'Outros motivos'
+  ];
+
+  const getStatusBadge = () => {
+    switch (appointment.status) {
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Realizada</Badge>;
+      case 'not_completed':
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Não realizada</Badge>;
+      default:
+        return <Badge variant="outline">Pendente</Badge>;
+    }
   };
 
   return (
@@ -70,6 +129,39 @@ export const AppointmentDetails = ({
           </div>
           <div className="text-sm text-muted-foreground">
             Tipo de consulta: {appointment.type}
+          </div>
+
+          <Separator />
+
+          {/* Status da Consulta */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">A consulta foi realizada?</Label>
+              {getStatusBadge()}
+            </div>
+            
+            {(!appointment.status || appointment.status === 'pending') && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMarkCompleted}
+                  className="flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Sim
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMarkNotCompleted}
+                  className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 border-red-200"
+                >
+                  <XCircle className="h-4 w-4" />
+                  Não
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -205,6 +297,41 @@ export const AppointmentDetails = ({
             onClose={() => setShowCancelModal(false)}
             onCancel={handleCancelAppointment}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para motivo de não realização */}
+      <Dialog open={showNotCompletedModal} onOpenChange={setShowNotCompletedModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Motivo da Não Realização</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="reason-select">Por que a consulta não foi realizada?</Label>
+              <Select value={notCompletedReason} onValueChange={setNotCompletedReason}>
+                <SelectTrigger id="reason-select" className="w-full">
+                  <SelectValue placeholder="Selecione um motivo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {notCompletedReasons.map((reason) => (
+                    <SelectItem key={reason} value={reason}>
+                      {reason}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowNotCompletedModal(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleConfirmNotCompleted}>
+                Confirmar
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
