@@ -247,6 +247,15 @@ const Calendario = () => {
     console.log(`Consulta ${appointmentId} cancelada com motivo: ${reason}`);
   };
 
+  const handleCancelMultipleAppointments = (appointmentIds: string[], reason: string) => {
+    setAppointments(prevAppointments => 
+      prevAppointments.filter(appointment => !appointmentIds.includes(appointment.id))
+    );
+    appointmentIds.forEach(id => {
+      console.log(`Consulta ${id} cancelada automaticamente com motivo: ${reason}`);
+    });
+  };
+
   const getAppointmentPosition = (time: string) => {
     const [hours, minutes] = time.split(':').map(Number);
     const totalMinutes = hours * 60 + minutes;
@@ -453,6 +462,8 @@ const Calendario = () => {
               <NewAbsenceForm 
                 onClose={() => setShowNewAbsence(false)} 
                 onAbsenceAdded={handleAbsenceAdded}
+                appointments={appointments}
+                onCancelAppointments={handleCancelMultipleAppointments}
               />
             </DialogContent>
           </Dialog>
