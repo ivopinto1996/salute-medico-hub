@@ -450,7 +450,7 @@ const Calendario = () => {
               <DialogHeader>
                 <DialogTitle>Agendar Nova Consulta</DialogTitle>
               </DialogHeader>
-              <NewAppointmentForm onClose={() => setShowNewAppointment(false)} />
+              <NewAppointmentForm onClose={() => setShowNewAppointment(false)} setAppointments={setAppointments} />
             </DialogContent>
           </Dialog>
 

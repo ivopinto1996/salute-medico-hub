@@ -29,9 +29,10 @@ const formSchema = z.object({
 
 interface NewAppointmentFormProps {
   onClose: () => void;
+  setAppointments: (appointments) => void;
 }
 
-export const NewAppointmentForm = ({ onClose }: NewAppointmentFormProps) => {
+export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -57,6 +58,19 @@ export const NewAppointmentForm = ({ onClose }: NewAppointmentFormProps) => {
         title: 'Consulta agendada com sucesso',
         description: `Consulta com ${values.patientName} agendada para ${format(values.date, 'dd/MM/yyyy')} às ${values.time}`,
       });
+      setAppointments((prevAppointments) => [
+        ...prevAppointments,
+        {
+          id: new Date().getTime().toString(),
+          patientName: values.patientName,
+          time: values.time,
+          date: values.date,
+          hasInsurance: values.hasInsurance,
+          location: values.location,
+          documents: [],
+          type: values.consultationType,
+        }
+      ])
       setIsSubmitting(false);
       onClose();
     }, 1000);
