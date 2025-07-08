@@ -447,6 +447,8 @@ const Calendario = () => {
 
   // Componente para consulta arrastável
   const DraggableAppointment = ({ appointment, day }: { appointment: Appointment; day: Date }) => {
+    const [isDragStarted, setIsDragStarted] = useState(false);
+    
     const {
       attributes,
       listeners,
@@ -467,33 +469,45 @@ const Calendario = () => {
       ...style
     };
 
+    const handleAppointmentClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      // Só abre o modal se não foi um drag
+      if (!isDragStarted) {
+        setSelectedAppointment(appointment);
+      }
+    };
+
+    const handleDragHandleMouseDown = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setIsDragStarted(true);
+      // Reset após um tempo para permitir cliques futuros
+      setTimeout(() => setIsDragStarted(false), 100);
+    };
+
     return (
       <div
         ref={setNodeRef}
         style={combinedStyle}
         className={cn(
-          "absolute left-1 right-1 p-1 rounded text-xs border select-none relative",
+          "absolute left-1 right-1 p-1 rounded text-xs border relative cursor-pointer",
           getAppointmentColor(appointment.type),
           isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
         )}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedAppointment(appointment);
-        }}
+        onClick={handleAppointmentClick}
       >
         {/* Área de drag no canto superior direito */}
         <div
           {...listeners}
           {...attributes}
           className="absolute top-0 right-0 w-4 h-4 cursor-grab hover:bg-black/10 rounded-br rounded-tl flex items-center justify-center"
-          onClick={(e) => e.stopPropagation()}
+          onMouseDown={handleDragHandleMouseDown}
         >
           <div className="w-2 h-2 bg-current opacity-50"></div>
         </div>
         
-        <div className="font-medium truncate">{appointment.time}</div>
-        <div className="truncate">{appointment.patientName}</div>
-        <div className="truncate text-xs opacity-75">{appointment.type}</div>
+        <div className="font-medium truncate pr-4">{appointment.time}</div>
+        <div className="truncate pr-4">{appointment.patientName}</div>
+        <div className="truncate text-xs opacity-75 pr-4">{appointment.type}</div>
       </div>
     );
   };
