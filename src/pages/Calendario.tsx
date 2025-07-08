@@ -15,7 +15,7 @@ import { AbsenceDetails } from '@/components/Calendar/AbsenceDetails';
 import { DragDropConfirmationModal } from '@/components/Calendar/DragDropConfirmationModal';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useToast } from '@/hooks/use-toast';
 
@@ -58,6 +58,14 @@ const Calendario = () => {
     newTime: string;
   } | null>(null);
   const { toast } = useToast();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   // Dados simulados de consultas com mais variedade - agora como estado
   const [appointments, setAppointments] = useState<Appointment[]>([
@@ -406,7 +414,7 @@ const Calendario = () => {
   };
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
