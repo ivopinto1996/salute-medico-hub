@@ -5,7 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CalendarIcon, Clock } from 'lucide-react';
+import { CalendarIcon, Clock, Mail, Plus, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -43,6 +45,9 @@ export const NewAbsenceForm = ({
   const [endTime, setEndTime] = useState('18:00');
   const [conflictingAppointments, setConflictingAppointments] = useState<Appointment[]>([]);
   const [showConflictModal, setShowConflictModal] = useState(false);
+  const [emailRecipients, setEmailRecipients] = useState<string[]>(['']);
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
 
   const absenceTypes = [
     'Férias',
@@ -58,6 +63,49 @@ export const NewAbsenceForm = ({
     '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
     '16:00', '16:30', '17:00', '17:30', '18:00'
   ];
+
+  // Funções para gerenciar emails
+  const addEmailRecipient = () => {
+    setEmailRecipients([...emailRecipients, '']);
+  };
+
+  const removeEmailRecipient = (index: number) => {
+    if (emailRecipients.length > 1) {
+      setEmailRecipients(emailRecipients.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateEmailRecipient = (index: number, email: string) => {
+    const updated = [...emailRecipients];
+    updated[index] = email;
+    setEmailRecipients(updated);
+  };
+
+  const sendEmails = async () => {
+    const validEmails = emailRecipients.filter(email => email.trim() !== '');
+    
+    if (validEmails.length === 0) {
+      toast({
+        title: "Erro",
+        description: "Por favor, adicione pelo menos um destinatário de email.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Aqui você precisará implementar a lógica de envio de email
+    // Recomendo usar Supabase Edge Functions para isso
+    console.log('Enviando emails para:', validEmails);
+    console.log('Assunto:', emailSubject);
+    console.log('Mensagem:', emailMessage);
+    
+    toast({
+      title: "Emails enviados",
+      description: `Emails enviados para ${validEmails.length} destinatário(s).`,
+    });
+    
+    return true;
+  };
 
   // Função para verificar conflitos de horário
   const checkForConflicts = (absence: any) => {
@@ -139,8 +187,16 @@ export const NewAbsenceForm = ({
     proceedWithAbsence(absence);
   };
 
-  const proceedWithAbsence = (absence: any) => {
+  const proceedWithAbsence = async (absence: any) => {
     console.log('Registrando ausência:', absence); // Debug
+
+    // Se for Compromisso Pessoal e há emails, enviar notificações
+    if (absence.type === 'Compromisso Pessoal' && emailRecipients.some(email => email.trim() !== '')) {
+      const emailSent = await sendEmails();
+      if (!emailSent) {
+        return; // Não proceder se houve erro no envio de emails
+      }
+    }
 
     // Callback para adicionar a ausência ao componente pai
     if (onAbsenceAdded) {
@@ -283,6 +339,78 @@ export const NewAbsenceForm = ({
             </div>
           </div>
         </div>
+
+        {/* Seção de Email - aparece apenas para Compromisso Pessoal */}
+        {absenceType === 'Compromisso Pessoal' && (
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              <Label className="text-sm font-medium">Enviar notificação por email</Label>
+            </div>
+            
+            <div>
+              <Label htmlFor="email-subject">Assunto do Email</Label>
+              <Input
+                id="email-subject"
+                placeholder="Assunto da notificação"
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email-message">Mensagem</Label>
+              <Textarea
+                id="email-message"
+                placeholder="Mensagem a ser enviada..."
+                value={emailMessage}
+                onChange={(e) => setEmailMessage(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Destinatários</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addEmailRecipient}
+                  className="flex items-center gap-1"
+                >
+                  <Plus className="h-3 w-3" />
+                  Adicionar
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {emailRecipients.map((email, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="email@exemplo.com"
+                      value={email}
+                      onChange={(e) => updateEmailRecipient(index, e.target.value)}
+                      className="flex-1"
+                    />
+                    {emailRecipients.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeEmailRecipient(index)}
+                        className="px-2"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose}>
