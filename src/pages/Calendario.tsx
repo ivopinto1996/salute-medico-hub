@@ -47,7 +47,7 @@ const Calendario = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedAppointmentTypes, setSelectedAppointmentTypes] = useState<string[]>([
     'Consulta de Rotina', 'Primeira Consulta', 'Retorno', 'Urgência',
-    'Férias', 'Doença', 'Formação', 'Congresso', 'Licença Parental', 'Licença Especial'
+    'Férias', 'Licença Médica', 'Congresso/Formação', 'Compromisso Pessoal', 'Emergência', 'Outros'
   ]);
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
@@ -140,11 +140,11 @@ const Calendario = () => {
 
   const absenceTypes = [
     { name: 'Férias', color: 'bg-purple-100 text-purple-800 border-purple-200', type: 'absence' },
-    { name: 'Doença', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', type: 'absence' },
-    { name: 'Formação', color: 'bg-indigo-100 text-indigo-800 border-indigo-200', type: 'absence' },
-    { name: 'Congresso', color: 'bg-pink-100 text-pink-800 border-pink-200', type: 'absence' },
-    { name: 'Licença Parental', color: 'bg-cyan-100 text-cyan-800 border-cyan-200', type: 'absence' },
-    { name: 'Licença Especial', color: 'bg-gray-100 text-gray-800 border-gray-200', type: 'absence' },
+    { name: 'Licença Médica', color: 'bg-yellow-100 text-yellow-800 border-yellow-200', type: 'absence' },
+    { name: 'Congresso/Formação', color: 'bg-indigo-100 text-indigo-800 border-indigo-200', type: 'absence' },
+    { name: 'Compromisso Pessoal', color: 'bg-pink-100 text-pink-800 border-pink-200', type: 'absence' },
+    { name: 'Emergência', color: 'bg-red-100 text-red-800 border-red-200', type: 'absence' },
+    { name: 'Outros', color: 'bg-gray-100 text-gray-800 border-gray-200', type: 'absence' },
   ];
 
   const allFilterTypes = [...appointmentTypes, ...absenceTypes];
