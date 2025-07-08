@@ -43,6 +43,8 @@ export const AppointmentDetails = ({
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showNotCompletedModal, setShowNotCompletedModal] = useState(false);
   const [notCompletedReason, setNotCompletedReason] = useState('');
+  const [currentStatus, setCurrentStatus] = useState(appointment.status || 'pending');
+  const [statusReason, setStatusReason] = useState('');
 
   const handleDownloadDocument = (documentName: string) => {
     // Simulação de download - em produção, implementar download real
@@ -61,6 +63,8 @@ export const AppointmentDetails = ({
   };
 
   const handleMarkCompleted = () => {
+    setCurrentStatus('completed');
+    setStatusReason('');
     onUpdateStatus?.(appointment.id, 'completed');
     toast({
       title: "Consulta marcada como realizada",
@@ -82,6 +86,8 @@ export const AppointmentDetails = ({
       return;
     }
     
+    setCurrentStatus('not_completed');
+    setStatusReason(notCompletedReason);
     onUpdateStatus?.(appointment.id, 'not_completed', notCompletedReason);
     setShowNotCompletedModal(false);
     setNotCompletedReason('');
@@ -99,12 +105,22 @@ export const AppointmentDetails = ({
     'Outros motivos'
   ];
 
-  const getStatusBadge = () => {
-    switch (appointment.status) {
+  const getStatusDisplay = () => {
+    switch (currentStatus) {
       case 'completed':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Realizada</Badge>;
+        return (
+          <div className="text-sm">
+            <Badge className="bg-green-100 text-green-800 border-green-200 mb-1">Realizada</Badge>
+            <p className="text-green-700 font-medium">A consulta foi realizada</p>
+          </div>
+        );
       case 'not_completed':
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Não realizada</Badge>;
+        return (
+          <div className="text-sm">
+            <Badge className="bg-red-100 text-red-800 border-red-200 mb-1">Não Realizada</Badge>
+            <p className="text-red-700 font-medium">A consulta não foi realizada - {statusReason}</p>
+          </div>
+        );
       default:
         return <Badge variant="outline">Pendente</Badge>;
     }
@@ -137,10 +153,10 @@ export const AppointmentDetails = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">A consulta foi realizada?</Label>
-              {getStatusBadge()}
+              {getStatusDisplay()}
             </div>
             
-            {(!appointment.status || appointment.status === 'pending') && (
+            {currentStatus === 'pending' && (
               <div className="flex gap-2">
                 <Button
                   variant="outline"
