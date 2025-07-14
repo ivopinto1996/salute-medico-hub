@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { FileText, Search, Filter, Download, Eye, Calendar, User } from 'lucide-react';
+import { FileText, Search, Filter, Download, Eye, Calendar, User, ChevronDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Pagination,
   PaginationContent,
@@ -33,6 +34,7 @@ const Documentos = () => {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const itemsPerPage = 10;
 
   // Dados simulados de documentos
@@ -243,71 +245,152 @@ const Documentos = () => {
         </p>
       </div>
 
-      {/* Filtros e Busca */}
+      {/* Filtros */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtros e Busca
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Busca */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar documentos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+        {/* Desktop: CardHeader sempre visível */}
+        <div className="hidden lg:block">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Filtros
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Busca */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar documentos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filtro por Paciente */}
+              <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filtrar por paciente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os pacientes</SelectItem>
+                  {uniquePatients.map((patient) => (
+                    <SelectItem key={patient} value={patient}>
+                      {patient}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Filtro por Tipo */}
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filtrar por tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  {uniqueTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Botão de Limpar Filtros */}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedPatient('all');
+                  setSelectedType('all');
+                  resetPage();
+                }}
+              >
+                Limpar Filtros
+              </Button>
             </div>
+          </CardContent>
+        </div>
 
-            {/* Filtro por Paciente */}
-            <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar por paciente" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os pacientes</SelectItem>
-                {uniquePatients.map((patient) => (
-                  <SelectItem key={patient} value={patient}>
-                    {patient}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Mobile/Tablet: Accordion behavior */}
+        <Collapsible 
+          open={filtersOpen} 
+          onOpenChange={setFiltersOpen}
+          className="lg:hidden"
+        >
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Filtros
+                </div>
+                <ChevronDown className={`h-4 w-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+              </CardTitle>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Busca */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar documentos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-            {/* Filtro por Tipo */}
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar por tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                {uniqueTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                {/* Filtro por Paciente */}
+                <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por paciente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os pacientes</SelectItem>
+                    {uniquePatients.map((patient) => (
+                      <SelectItem key={patient} value={patient}>
+                        {patient}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-            {/* Botão de Limpar Filtros */}
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedPatient('all');
-                setSelectedType('all');
-                resetPage();
-              }}
-            >
-              Limpar Filtros
-            </Button>
-          </div>
-        </CardContent>
+                {/* Filtro por Tipo */}
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
+                    {uniqueTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Botão de Limpar Filtros */}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedPatient('all');
+                    setSelectedType('all');
+                    resetPage();
+                  }}
+                >
+                  Limpar Filtros
+                </Button>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
 
       {/* Lista de Documentos */}
