@@ -361,7 +361,7 @@ const Documentos = () => {
                   </div>
                   
                   {/* 3º nível - Botões na última linha (lg e xl) */}
-                  <div className="flex flex-col sm:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto lg:w-auto xl:w-auto">
+                  <div className="flex flex-col sm:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto lg:w-full xl:w-full lg:justify-start xl:justify-start">
                     <Button
                       variant="outline"
                       size="sm"
