@@ -331,10 +331,10 @@ const Documentos = () => {
               {paginatedDocuments.map((document) => (
                 <div
                   key={document.id}
-                  className="flex flex-col md:flex-row lg:flex-col lg:items-start xl:flex-col xl:items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
+                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
                 >
                   <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row lg:items-center xl:flex-row xl:items-center gap-3 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-muted-foreground" />
                         <h3 className="font-medium">{document.name}</h3>
@@ -343,7 +343,7 @@ const Documentos = () => {
                         {document.type}
                       </Badge>
                     </div>
-                    <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row lg:items-center xl:flex-row xl:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <User className="h-4 w-4" />
                         {document.patientName}
@@ -356,12 +356,12 @@ const Documentos = () => {
                       <span>Tamanho: {document.size}</span>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row lg:justify-start xl:flex-row xl:justify-start gap-2 w-full sm:w-auto md:w-auto lg:w-full xl:w-full">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleView(document)}
-                      className="w-full sm:w-auto md:w-auto lg:w-auto xl:w-auto"
+                      className="w-full sm:w-auto"
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       Visualizar
@@ -370,7 +370,7 @@ const Documentos = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDownload(document)}
-                      className="w-full sm:w-auto md:w-auto lg:w-auto xl:w-auto"
+                      className="w-full sm:w-auto"
                     >
                       <Download className="h-4 w-4 mr-1" />
                       Download
