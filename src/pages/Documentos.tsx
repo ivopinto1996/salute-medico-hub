@@ -6,6 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface Document {
   id: string;
@@ -23,6 +32,8 @@ const Documentos = () => {
   const [selectedPatient, setSelectedPatient] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Dados simulados de documentos
   const documents: Document[] = [
@@ -91,6 +102,17 @@ const Documentos = () => {
     
     return matchesSearch && matchesPatient && matchesType;
   });
+
+  // Calcular paginação
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedDocuments = filteredDocuments.slice(startIndex, endIndex);
+
+  // Reset página quando filtros mudam
+  const resetPage = () => {
+    setCurrentPage(1);
+  };
 
   const handleDownload = (document: Document) => {
     // Simulação de download - em produção, implementar download real
@@ -179,6 +201,7 @@ const Documentos = () => {
                 setSearchTerm('');
                 setSelectedPatient('all');
                 setSelectedType('all');
+                resetPage();
               }}
             >
               Limpar Filtros
@@ -205,7 +228,7 @@ const Documentos = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredDocuments.map((document) => (
+              {paginatedDocuments.map((document) => (
                 <div
                   key={document.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -255,6 +278,55 @@ const Documentos = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Paginação */}
+      {filteredDocuments.length > itemsPerPage && (
+        <div className="flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) setCurrentPage(currentPage - 1);
+                  }}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, index) => {
+                const page = index + 1;
+                return (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                      isActive={currentPage === page}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                  }}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Modal de Visualização de Documento */}
       <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
