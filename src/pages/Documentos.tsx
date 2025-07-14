@@ -33,7 +33,7 @@ const Documentos = () => {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   // Dados simulados de documentos
   const documents: Document[] = [
