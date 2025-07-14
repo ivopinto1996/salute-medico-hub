@@ -335,7 +335,7 @@ const Documentos = () => {
                 >
                   <div className="flex-1 lg:w-full xl:w-full">
                     {/* 1º nível - Nome do documento e tipo na primeira linha (lg e xl) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center lg:flex-row lg:items-center lg:justify-between xl:flex-row xl:items-center xl:justify-between gap-3 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center lg:flex-row lg:items-center xl:flex-row xl:items-center gap-3 mb-2">
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-muted-foreground" />
                         <h3 className="font-medium">{document.name}</h3>
@@ -346,7 +346,7 @@ const Documentos = () => {
                     </div>
                     
                     {/* 2º nível - Nome do paciente, datas e tamanho na linha do meio (lg e xl) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center lg:flex-row lg:items-center lg:justify-between xl:flex-row xl:items-center xl:justify-between gap-2 sm:gap-4 lg:gap-4 xl:gap-4 text-sm text-muted-foreground mb-3 lg:mb-3 xl:mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center lg:flex-row lg:items-center xl:flex-row xl:items-center gap-2 sm:gap-4 lg:gap-4 xl:gap-4 text-sm text-muted-foreground mb-3 lg:mb-3 xl:mb-3">
                       <div className="flex items-center gap-1">
                         <User className="h-4 w-4" />
                         {document.patientName}
@@ -361,7 +361,7 @@ const Documentos = () => {
                   </div>
                   
                   {/* 3º nível - Botões na última linha (lg e xl) */}
-                  <div className="flex flex-col sm:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto lg:w-auto xl:w-auto lg:justify-end xl:justify-end">
+                  <div className="flex flex-col sm:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto lg:w-auto xl:w-auto">
                     <Button
                       variant="outline"
                       size="sm"
