@@ -331,7 +331,7 @@ const Documentos = () => {
               {paginatedDocuments.map((document) => (
                 <div
                   key={document.id}
-                  className="flex flex-col md:flex-row lg:flex-row xl:flex-row xl:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
+                  className="flex flex-col md:flex-row lg:flex-row xl:flex-col xl:items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
                 >
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row xl:flex-row xl:items-center gap-3 mb-2">
@@ -356,7 +356,7 @@ const Documentos = () => {
                       <span>Tamanho: {document.size}</span>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto md:w-auto lg:w-auto xl:w-auto">
+                  <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row xl:flex-row xl:justify-start gap-2 w-full sm:w-auto md:w-auto lg:w-auto xl:w-full">
                     <Button
                       variant="outline"
                       size="sm"
