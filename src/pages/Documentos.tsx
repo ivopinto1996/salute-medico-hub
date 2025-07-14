@@ -414,11 +414,11 @@ const Documentos = () => {
               {paginatedDocuments.map((document) => (
                 <div
                   key={document.id}
-                  className="flex flex-col md:flex-row md:items-center lg:flex-col xl:flex-col justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
+                  className="flex flex-col md:flex-col lg:flex-col xl:flex-col justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-4"
                 >
-                  <div className="flex-1 lg:w-full xl:w-full">
-                    {/* 1º nível - Nome do documento e tipo na primeira linha (lg e xl) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center lg:flex-row lg:items-center xl:flex-row xl:items-center gap-3 mb-2">
+                  <div className="flex-1 md:w-full lg:w-full xl:w-full">
+                    {/* 1º nível - Nome do documento e tipo na primeira linha (md, lg e xl) */}
+                    <div className="flex flex-col sm:flex-row sm:items-center md:flex-row md:items-center lg:flex-row lg:items-center xl:flex-row xl:items-center gap-3 mb-2">
                       <div className="flex items-center gap-3">
                         <FileText className="h-5 w-5 text-muted-foreground" />
                         <h3 className="font-medium">{document.name}</h3>
@@ -428,8 +428,8 @@ const Documentos = () => {
                       </Badge>
                     </div>
                     
-                    {/* 2º nível - Nome do paciente, datas e tamanho na linha do meio (lg e xl) */}
-                    <div className="flex flex-col sm:flex-row sm:items-center lg:flex-row lg:items-center xl:flex-row xl:items-center gap-2 sm:gap-4 lg:gap-4 xl:gap-4 text-sm text-muted-foreground mb-3 lg:mb-3 xl:mb-3">
+                    {/* 2º nível - Nome do paciente, datas e tamanho na linha do meio (md, lg e xl) */}
+                    <div className="flex flex-col sm:flex-row sm:items-center md:flex-row md:items-center lg:flex-row lg:items-center xl:flex-row xl:items-center gap-2 sm:gap-4 md:gap-4 lg:gap-4 xl:gap-4 text-sm text-muted-foreground mb-3 md:mb-3 lg:mb-3 xl:mb-3">
                       <div className="flex items-center gap-1">
                         <User className="h-4 w-4" />
                         {document.patientName}
@@ -443,8 +443,8 @@ const Documentos = () => {
                     </div>
                   </div>
                   
-                  {/* 3º nível - Botões na última linha (lg e xl) */}
-                  <div className="flex flex-col sm:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto lg:w-full xl:w-full lg:justify-start xl:justify-start">
+                  {/* 3º nível - Botões na última linha (md, lg e xl) */}
+                  <div className="flex flex-col sm:flex-row md:flex-row lg:flex-row xl:flex-row gap-2 w-full sm:w-auto md:w-full lg:w-full xl:w-full md:justify-start lg:justify-start xl:justify-start">
                     <Button
                       variant="outline"
                       size="sm"
