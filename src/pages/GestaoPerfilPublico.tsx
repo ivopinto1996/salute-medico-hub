@@ -41,6 +41,9 @@ interface Consultorio {
   id: string;
   nome: string;
   endereco: string;
+  codigoPostal: string;
+  cidade: string;
+  coordenadas: string;
   direcoes: string;
 }
 
@@ -79,6 +82,22 @@ const GestaoPerfilPublico = () => {
   const duracaoSlots = [15, 20, 30, 45, 60];
   const segurosDisponiveis = ['Unimed', 'Bradesco Saúde', 'SulAmérica', 'Amil', 'Golden Cross', 'NotreDame'];
   const diasSemana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+  const cidadesPortugal = [
+    'Aveiro', 'Beja', 'Braga', 'Bragança', 'Castelo Branco', 'Coimbra', 'Évora', 'Faro',
+    'Guarda', 'Leiria', 'Lisboa', 'Portalegre', 'Porto', 'Santarém', 'Setúbal', 'Viana do Castelo',
+    'Vila Real', 'Viseu', 'Funchal', 'Ponta Delgada', 'Angra do Heroísmo', 'Horta',
+    'Almada', 'Amadora', 'Barreiro', 'Cascais', 'Loures', 'Matosinhos', 'Oeiras', 'Seixal',
+    'Sintra', 'Vila Nova de Gaia', 'Gondomar', 'Maia', 'Valongo', 'Póvoa de Varzim',
+    'Espinho', 'Figueira da Foz', 'Torres Vedras', 'Caldas da Rainha', 'Tomar', 'Santarém',
+    'Portalegre', 'Elvas', 'Montijo', 'Chaves', 'Mirandela', 'Lamego', 'Peso da Régua',
+    'Amarante', 'Felgueiras', 'Paços de Ferreira', 'Penafiel', 'Trofa', 'Famalicão',
+    'Guimarães', 'Barcelos', 'Esposende', 'Viana do Castelo', 'Caminha', 'Ponte de Lima',
+    'Arcos de Valdevez', 'Monção', 'Valença', 'Paredes de Coura', 'Vila Verde', 'Fafe',
+    'Cabeceiras de Basto', 'Mondim de Basto', 'Ribeira de Pena', 'Boticas', 'Montalegre',
+    'Vila Pouca de Aguiar', 'Sabrosa', 'Alijó', 'Murça', 'Valpaços', 'Macedo de Cavaleiros',
+    'Vinhais', 'Bragança', 'Vimioso', 'Miranda do Douro', 'Mogadouro', 'Freixo de Espada à Cinta',
+    'Torre de Moncorvo', 'Alfândega da Fé', 'Carrazeda de Ansiães'
+  ];
 
   const adicionarFormacao = () => {
     const novaFormacao: Formacao = {
@@ -122,6 +141,9 @@ const GestaoPerfilPublico = () => {
       id: Date.now().toString(),
       nome: '',
       endereco: '',
+      codigoPostal: '',
+      cidade: '',
+      coordenadas: '',
       direcoes: '',
     };
     setConsultorios([...consultorios, novoConsultorio]);
@@ -615,10 +637,40 @@ const GestaoPerfilPublico = () => {
                   ))}
                 />
                 <Input
-                  placeholder="Endereço completo"
+                  placeholder="Morada do consultório"
                   value={consultorio.endereco}
                   onChange={(e) => setConsultorios(consultorios.map(c => 
                     c.id === consultorio.id ? { ...c, endereco: e.target.value } : c
+                  ))}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    placeholder="Código postal"
+                    value={consultorio.codigoPostal}
+                    onChange={(e) => setConsultorios(consultorios.map(c => 
+                      c.id === consultorio.id ? { ...c, codigoPostal: e.target.value } : c
+                    ))}
+                  />
+                  <Select value={consultorio.cidade} onValueChange={(value) => 
+                    setConsultorios(consultorios.map(c => 
+                      c.id === consultorio.id ? { ...c, cidade: value } : c
+                    ))
+                  }>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar cidade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cidadesPortugal.map((cidade) => (
+                        <SelectItem key={cidade} value={cidade}>{cidade}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Input
+                  placeholder="Coordenadas do maps (opcional)"
+                  value={consultorio.coordenadas}
+                  onChange={(e) => setConsultorios(consultorios.map(c => 
+                    c.id === consultorio.id ? { ...c, coordenadas: e.target.value } : c
                   ))}
                 />
                 <Textarea
