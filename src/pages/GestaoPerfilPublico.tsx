@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 
 interface Formacao {
@@ -440,21 +441,19 @@ const GestaoPerfilPublico = () => {
                 {horarioTrabalho.map((horario) => (
                   <div key={horario.id} className="p-4 border rounded space-y-4">
                     <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <Label className="text-base font-medium">{horario.dia}</Label>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
+                      <Label className="text-base font-medium">{horario.dia}</Label>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <Switch
                             checked={horario.ativo}
-                            onChange={(e) => updateHorarioTrabalho(horario.id, 'ativo', e.target.checked)}
-                            className="mr-2"
+                            onCheckedChange={(checked) => updateHorarioTrabalho(horario.id, 'ativo', checked)}
                           />
                           <Label className="text-sm">Ativo</Label>
                         </div>
+                        <Button variant="outline" size="sm" onClick={() => removerDiaSemana(horario.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => removerDiaSemana(horario.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
