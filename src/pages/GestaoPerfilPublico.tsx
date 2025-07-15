@@ -436,7 +436,7 @@ const GestaoPerfilPublico = () => {
                 </Select>
               </div>
               
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {horarioTrabalho.map((horario) => (
                   <div key={horario.id} className="p-4 border rounded space-y-4">
                     <div className="flex justify-between items-center">
