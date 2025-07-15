@@ -440,13 +440,24 @@ const GestaoPerfilPublico = () => {
                 {horarioTrabalho.map((horario) => (
                   <div key={horario.id} className="p-4 border rounded space-y-4">
                     <div className="flex justify-between items-center">
-                      <Label className="text-base font-medium">{horario.dia}</Label>
+                      <div className="flex items-center gap-3">
+                        <Label className="text-base font-medium">{horario.dia}</Label>
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={horario.ativo}
+                            onChange={(e) => updateHorarioTrabalho(horario.id, 'ativo', e.target.checked)}
+                            className="mr-2"
+                          />
+                          <Label className="text-sm">Ativo</Label>
+                        </div>
+                      </div>
                       <Button variant="outline" size="sm" onClick={() => removerDiaSemana(horario.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label className="text-sm font-medium">Tipo de Trabalho</Label>
                         <Select value={horario.tipoTrabalho} onValueChange={(value) => 
@@ -479,16 +490,6 @@ const GestaoPerfilPublico = () => {
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
-                      
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={horario.ativo}
-                          onChange={(e) => updateHorarioTrabalho(horario.id, 'ativo', e.target.checked)}
-                          className="mr-2"
-                        />
-                        <Label className="text-sm">Ativo</Label>
                       </div>
                     </div>
 
