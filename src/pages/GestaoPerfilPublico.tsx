@@ -43,7 +43,8 @@ interface Consultorio {
   endereco: string;
   codigoPostal: string;
   cidade: string;
-  coordenadas: string;
+  latitude: string;
+  longitude: string;
   direcoes: string;
 }
 
@@ -143,7 +144,8 @@ const GestaoPerfilPublico = () => {
       endereco: '',
       codigoPostal: '',
       cidade: '',
-      coordenadas: '',
+      latitude: '',
+      longitude: '',
       direcoes: '',
     };
     setConsultorios([...consultorios, novoConsultorio]);
@@ -666,13 +668,22 @@ const GestaoPerfilPublico = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <Input
-                  placeholder="Coordenadas do maps (opcional)"
-                  value={consultorio.coordenadas}
-                  onChange={(e) => setConsultorios(consultorios.map(c => 
-                    c.id === consultorio.id ? { ...c, coordenadas: e.target.value } : c
-                  ))}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    placeholder="Latitude (opcional)"
+                    value={consultorio.latitude}
+                    onChange={(e) => setConsultorios(consultorios.map(c => 
+                      c.id === consultorio.id ? { ...c, latitude: e.target.value } : c
+                    ))}
+                  />
+                  <Input
+                    placeholder="Longitude (opcional)"
+                    value={consultorio.longitude}
+                    onChange={(e) => setConsultorios(consultorios.map(c => 
+                      c.id === consultorio.id ? { ...c, longitude: e.target.value } : c
+                    ))}
+                  />
+                </div>
                 <Textarea
                   placeholder="Direções extras (informações adicionais para encontrar)"
                   value={consultorio.direcoes}
