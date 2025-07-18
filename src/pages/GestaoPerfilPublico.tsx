@@ -15,14 +15,16 @@ interface Formacao {
   id: string;
   instituicao: string;
   curso: string;
-  ano: string;
+  anoInicio: string;
+  anoFim: string;
 }
 
 interface Experiencia {
   id: string;
   empresa: string;
   cargo: string;
-  periodo: string;
+  anoInicio: string;
+  anoFim: string;
 }
 
 interface HorarioTrabalho {
@@ -69,7 +71,7 @@ const GestaoPerfilPublico = () => {
   const [idiomas, setIdiomas] = useState<string[]>(['Português']);
   const [formacoes, setFormacoes] = useState<Formacao[]>([]);
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
-  const [telefones, setTelefones] = useState<string[]>(['']);
+  const [telefones, setTelefones] = useState<{prefixo: string, numero: string}[]>([{prefixo: '+351', numero: ''}]);
   const [consultorios, setConsultorios] = useState<Consultorio[]>([]);
   const [seguros, setSeguros] = useState<string[]>([]);
   const [tiposConsulta, setTiposConsulta] = useState<TipoConsulta[]>([]);
@@ -100,12 +102,65 @@ const GestaoPerfilPublico = () => {
     'Torre de Moncorvo', 'Alfândega da Fé', 'Carrazeda de Ansiães'
   ];
 
+  const prefixosPaises = [
+    { nome: 'Portugal', codigo: '+351' },
+    { nome: 'Espanha', codigo: '+34' },
+    { nome: 'França', codigo: '+33' },
+    { nome: 'Alemanha', codigo: '+49' },
+    { nome: 'Itália', codigo: '+39' },
+    { nome: 'Reino Unido', codigo: '+44' },
+    { nome: 'Estados Unidos', codigo: '+1' },
+    { nome: 'Brasil', codigo: '+55' },
+    { nome: 'Argentina', codigo: '+54' },
+    { nome: 'México', codigo: '+52' },
+    { nome: 'Canadá', codigo: '+1' },
+    { nome: 'Suíça', codigo: '+41' },
+    { nome: 'Holanda', codigo: '+31' },
+    { nome: 'Bélgica', codigo: '+32' },
+    { nome: 'Áustria', codigo: '+43' },
+    { nome: 'Suécia', codigo: '+46' },
+    { nome: 'Noruega', codigo: '+47' },
+    { nome: 'Dinamarca', codigo: '+45' },
+    { nome: 'Finlândia', codigo: '+358' },
+    { nome: 'Polónia', codigo: '+48' },
+    { nome: 'República Checa', codigo: '+420' },
+    { nome: 'Hungria', codigo: '+36' },
+    { nome: 'Roménia', codigo: '+40' },
+    { nome: 'Bulgária', codigo: '+359' },
+    { nome: 'Grécia', codigo: '+30' },
+    { nome: 'Turquia', codigo: '+90' },
+    { nome: 'Rússia', codigo: '+7' },
+    { nome: 'China', codigo: '+86' },
+    { nome: 'Japão', codigo: '+81' },
+    { nome: 'Coreia do Sul', codigo: '+82' },
+    { nome: 'Austrália', codigo: '+61' },
+    { nome: 'Nova Zelândia', codigo: '+64' },
+    { nome: 'África do Sul', codigo: '+27' },
+    { nome: 'Marrocos', codigo: '+212' },
+    { nome: 'Egipto', codigo: '+20' },
+    { nome: 'Israel', codigo: '+972' },
+    { nome: 'Emirados Árabes Unidos', codigo: '+971' },
+    { nome: 'Arábia Saudita', codigo: '+966' },
+    { nome: 'Índia', codigo: '+91' },
+    { nome: 'Tailândia', codigo: '+66' },
+    { nome: 'Singapura', codigo: '+65' },
+    { nome: 'Indonésia', codigo: '+62' },
+    { nome: 'Filipinas', codigo: '+63' },
+    { nome: 'Malásia', codigo: '+60' },
+    { nome: 'Vietname', codigo: '+84' }
+  ];
+
+  // Gerar anos de 1950 até ano atual + 10
+  const anoAtual = new Date().getFullYear();
+  const anosDisponiveis = Array.from({length: anoAtual - 1950 + 11}, (_, i) => anoAtual + 10 - i);
+
   const adicionarFormacao = () => {
     const novaFormacao: Formacao = {
       id: Date.now().toString(),
       instituicao: '',
       curso: '',
-      ano: '',
+      anoInicio: '',
+      anoFim: '',
     };
     setFormacoes([...formacoes, novaFormacao]);
   };
@@ -119,7 +174,8 @@ const GestaoPerfilPublico = () => {
       id: Date.now().toString(),
       empresa: '',
       cargo: '',
-      periodo: '',
+      anoInicio: '',
+      anoFim: '',
     };
     setExperiencias([...experiencias, novaExperiencia]);
   };
@@ -129,7 +185,7 @@ const GestaoPerfilPublico = () => {
   };
 
   const adicionarTelefone = () => {
-    setTelefones([...telefones, '']);
+    setTelefones([...telefones, {prefixo: '+351', numero: ''}]);
   };
 
   const removerTelefone = (index: number) => {
@@ -340,7 +396,7 @@ const GestaoPerfilPublico = () => {
               </Button>
             </div>
             {formacoes.map((formacao) => (
-              <div key={formacao.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 p-3 border rounded">
+              <div key={formacao.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-2 p-3 border rounded">
                 <Input
                   placeholder="Instituição"
                   value={formacao.instituicao}
@@ -355,13 +411,40 @@ const GestaoPerfilPublico = () => {
                     f.id === formacao.id ? { ...f, curso: e.target.value } : f
                   ))}
                 />
-                <Input
-                  placeholder="Ano"
-                  value={formacao.ano}
-                  onChange={(e) => setFormacoes(formacoes.map(f => 
-                    f.id === formacao.id ? { ...f, ano: e.target.value } : f
-                  ))}
-                />
+                <Select value={formacao.anoInicio} onValueChange={(value) => 
+                  setFormacoes(formacoes.map(f => 
+                    f.id === formacao.id ? { ...f, anoInicio: value } : f
+                  ))
+                }>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ano início" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anosDisponiveis.map((ano) => (
+                      <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select 
+                  value={formacao.anoFim} 
+                  onValueChange={(value) => 
+                    setFormacoes(formacoes.map(f => 
+                      f.id === formacao.id ? { ...f, anoFim: value } : f
+                    ))
+                  }
+                  disabled={!formacao.anoInicio}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ano fim" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anosDisponiveis
+                      .filter(ano => !formacao.anoInicio || ano >= parseInt(formacao.anoInicio))
+                      .map((ano) => (
+                        <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
                 <Button variant="outline" size="sm" onClick={() => removerFormacao(formacao.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -380,7 +463,7 @@ const GestaoPerfilPublico = () => {
               </Button>
             </div>
             {experiencias.map((experiencia) => (
-              <div key={experiencia.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 p-3 border rounded">
+              <div key={experiencia.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-2 p-3 border rounded">
                 <Input
                   placeholder="Empresa/Clínica"
                   value={experiencia.empresa}
@@ -395,13 +478,40 @@ const GestaoPerfilPublico = () => {
                     exp.id === experiencia.id ? { ...exp, cargo: e.target.value } : exp
                   ))}
                 />
-                <Input
-                  placeholder="Período (ex: 2020-2023)"
-                  value={experiencia.periodo}
-                  onChange={(e) => setExperiencias(experiencias.map(exp => 
-                    exp.id === experiencia.id ? { ...exp, periodo: e.target.value } : exp
-                  ))}
-                />
+                <Select value={experiencia.anoInicio} onValueChange={(value) => 
+                  setExperiencias(experiencias.map(exp => 
+                    exp.id === experiencia.id ? { ...exp, anoInicio: value } : exp
+                  ))
+                }>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ano início" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anosDisponiveis.map((ano) => (
+                      <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select 
+                  value={experiencia.anoFim} 
+                  onValueChange={(value) => 
+                    setExperiencias(experiencias.map(exp => 
+                      exp.id === experiencia.id ? { ...exp, anoFim: value } : exp
+                    ))
+                  }
+                  disabled={!experiencia.anoInicio}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ano fim" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anosDisponiveis
+                      .filter(ano => !experiencia.anoInicio || ano >= parseInt(experiencia.anoInicio))
+                      .map((ano) => (
+                        <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
                 <Button variant="outline" size="sm" onClick={() => removerExperiencia(experiencia.id)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -591,12 +701,32 @@ const GestaoPerfilPublico = () => {
             <Label>Números de Telefone</Label>
             {telefones.map((telefone, index) => (
               <div key={index} className="flex gap-2">
+                <Select 
+                  value={telefone.prefixo} 
+                  onValueChange={(value) => 
+                    setTelefones(telefones.map((t, i) => 
+                      i === index ? { ...t, prefixo: value } : t
+                    ))
+                  }
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Prefixo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {prefixosPaises.map((pais) => (
+                      <SelectItem key={pais.codigo} value={pais.codigo}>
+                        {pais.nome} ({pais.codigo})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Input
                   placeholder="Número de telefone"
-                  value={telefone}
+                  value={telefone.numero}
                   onChange={(e) => setTelefones(telefones.map((t, i) => 
-                    i === index ? e.target.value : t
+                    i === index ? { ...t, numero: e.target.value } : t
                   ))}
+                  className="flex-1"
                 />
                 {telefones.length > 1 && (
                   <Button variant="outline" size="sm" onClick={() => removerTelefone(index)}>
