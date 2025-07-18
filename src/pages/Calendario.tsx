@@ -28,6 +28,7 @@ interface Appointment {
   location: string;
   documents: string[];
   type: string;
+  observacoes?: string;
 }
 
 interface Absence {
@@ -78,6 +79,7 @@ const Calendario = () => {
       location: 'Consultório A',
       documents: ['Exame de sangue', 'Eletrocardiograma'],
       type: 'Consulta de Rotina',
+      observacoes: 'Paciente apresenta histórico de hipertensão. Recomendar acompanhamento cardiológico.',
     },
     {
       id: '2',
@@ -88,6 +90,7 @@ const Calendario = () => {
       location: 'Consultório B',
       documents: ['Raio-X do tórax'],
       type: 'Primeira Consulta',
+      observacoes: 'Primera consulta para avaliação geral. Paciente relata tosse persistente.',
     },
     {
       id: '3',

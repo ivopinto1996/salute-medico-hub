@@ -21,6 +21,7 @@ interface Appointment {
   documents: string[];
   type: string;
   status?: 'pending' | 'completed' | 'not_completed';
+  observacoes?: string;
 }
 
 interface AppointmentDetailsProps {
@@ -224,6 +225,20 @@ export const AppointmentDetails = ({
               <strong>Uso de Seguro:</strong> {appointment.hasInsurance ? 'Sim' : 'Não'}
             </span>
           </div>
+
+          {appointment.observacoes && (
+            <>
+              <Separator />
+              
+              <div className="flex items-start gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground mt-1" />
+                <div>
+                  <p className="text-sm font-medium">Observações:</p>
+                  <p className="text-sm text-muted-foreground">{appointment.observacoes}</p>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

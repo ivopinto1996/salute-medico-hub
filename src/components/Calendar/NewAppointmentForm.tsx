@@ -69,6 +69,7 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
           location: values.location,
           documents: [],
           type: values.consultationType,
+          observacoes: values.notes,
         }
       ])
       setIsSubmitting(false);
