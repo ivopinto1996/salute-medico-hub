@@ -15,6 +15,7 @@ import { AbsenceDetails } from '@/components/Calendar/AbsenceDetails';
 import { DragDropConfirmationModal } from '@/components/Calendar/DragDropConfirmationModal';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { pt } from 'date-fns/locale';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useToast } from '@/hooks/use-toast';
@@ -359,7 +360,7 @@ const Calendario = () => {
 
     toast({
       title: "Consulta reagendada",
-      description: `Consulta de ${pendingMove.appointment.patientName} movida para ${format(pendingMove.newDate, 'dd/MM/yyyy')} às ${pendingMove.newTime}`,
+      description: `Consulta de ${pendingMove.appointment.patientName} movida para ${format(pendingMove.newDate, 'dd/MM/yyyy', { locale: pt })} às ${pendingMove.newTime}`,
     });
 
     setPendingMove(null);
