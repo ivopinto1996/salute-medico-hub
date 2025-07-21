@@ -2,7 +2,6 @@ import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import { pt } from "date-fns/locale";
-import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -57,15 +56,6 @@ function Calendar({
       components={{
         IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
-        Caption: ({ displayMonth }) => {
-          const monthYear = format(displayMonth, 'MMMM yyyy', { locale: pt });
-          const capitalizedMonth = monthYear.charAt(0).toUpperCase() + monthYear.slice(1);
-          return (
-            <div className="flex justify-center pt-1 relative items-center">
-              <div className="text-sm font-medium">{capitalizedMonth}</div>
-            </div>
-          );
-        },
       }}
       {...props}
     />
