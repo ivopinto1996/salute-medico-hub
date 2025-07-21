@@ -13,6 +13,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationsPanel } from '../Notifications/NotificationsPanel';
 import { menuItems } from './DashboardSidebar';
+import portugalFlag from '@/assets/flags/portugal.png';
+import ukFlag from '@/assets/flags/uk.png';
+import franceFlag from '@/assets/flags/france.png';
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -79,9 +82,9 @@ export const DashboardHeader = () => {
 
   // Language options with flags
   const languages = [
-    { code: 'pt', name: 'Português', flag: '🇵🇹' },
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'pt', name: 'Português', flag: portugalFlag },
+    { code: 'en', name: 'English', flag: ukFlag },
+    { code: 'fr', name: 'Français', flag: franceFlag },
   ];
 
   const handleLanguageChange = (languageCode: string) => {
@@ -147,8 +150,12 @@ export const DashboardHeader = () => {
             {/* Seletor de Idioma */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-lg">
-                  {languages.find(lang => lang.code === selectedLanguage)?.flag}
+                <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                  <img 
+                    src={languages.find(lang => lang.code === selectedLanguage)?.flag} 
+                    alt="Flag" 
+                    className="h-6 w-6 rounded-full object-cover border border-border"
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -158,7 +165,11 @@ export const DashboardHeader = () => {
                     onClick={() => handleLanguageChange(language.code)}
                     className={selectedLanguage === language.code ? 'bg-accent' : ''}
                   >
-                    <span className="mr-2 text-lg">{language.flag}</span>
+                    <img 
+                      src={language.flag} 
+                      alt={`${language.name} flag`}
+                      className="mr-3 h-4 w-4 rounded-full object-cover border border-border"
+                    />
                     {language.name}
                     {selectedLanguage === language.code && (
                       <span className="ml-auto text-primary">✓</span>
