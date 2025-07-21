@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, User, LogOut, Menu, X } from 'lucide-react';
+import { Bell, User, LogOut, Menu, X, Globe } from 'lucide-react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +20,7 @@ export const DashboardHeader = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('pt');
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -76,6 +77,21 @@ export const DashboardHeader = () => {
     navigate('/conta');
   };
 
+  // Language options with flags
+  const languages = [
+    { code: 'pt', name: 'Português', flag: '🇵🇹' },
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  ];
+
+  const handleLanguageChange = (languageCode: string) => {
+    setSelectedLanguage(languageCode);
+    toast({
+      title: 'Idioma alterado',
+      description: `Idioma alterado para ${languages.find(lang => lang.code === languageCode)?.name}`,
+    });
+  };
+
   return (
     <>
       <header className="border-b bg-background px-6 py-3 relative">
@@ -127,6 +143,30 @@ export const DashboardHeader = () => {
                 </div>
               )}
             </div>
+
+            {/* Seletor de Idioma */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-lg">
+                  {languages.find(lang => lang.code === selectedLanguage)?.flag}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {languages.map((language) => (
+                  <DropdownMenuItem 
+                    key={language.code}
+                    onClick={() => handleLanguageChange(language.code)}
+                    className={selectedLanguage === language.code ? 'bg-accent' : ''}
+                  >
+                    <span className="mr-2 text-lg">{language.flag}</span>
+                    {language.name}
+                    {selectedLanguage === language.code && (
+                      <span className="ml-auto text-primary">✓</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Menu do Usuário */}
             <DropdownMenu>
