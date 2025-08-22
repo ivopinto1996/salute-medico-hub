@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X } from 'lucide-react';
+import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X, Edit, Check } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 
@@ -75,6 +76,7 @@ const GestaoPerfilPublico = () => {
   const [formacoes, setFormacoes] = useState<Formacao[]>([]);
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
   const [consultorios, setConsultorios] = useState<Consultorio[]>([]);
+  const [consultoriosAbertos, setConsultoriosAbertos] = useState<Set<string>>(new Set());
   const [seguros, setSeguros] = useState<string[]>([]);
   const [tiposConsulta, setTiposConsulta] = useState<TipoConsulta[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -199,6 +201,16 @@ const GestaoPerfilPublico = () => {
       telefones: [{prefixo: '+351', numero: ''}],
     };
     setConsultorios([...consultorios, novoConsultorio]);
+  };
+
+  const toggleConsultorioAberto = (id: string) => {
+    const novosAbertos = new Set(consultoriosAbertos);
+    if (novosAbertos.has(id)) {
+      novosAbertos.delete(id);
+    } else {
+      novosAbertos.add(id);
+    }
+    setConsultoriosAbertos(novosAbertos);
   };
 
   const removerConsultorio = (id: string) => {
@@ -736,138 +748,156 @@ const GestaoPerfilPublico = () => {
         <CardContent>
           <div className="space-y-4">
             {consultorios.map((consultorio) => (
-              <div key={consultorio.id} className="p-4 border rounded space-y-3">
-                <div className="flex justify-between items-center">
-                  <Label className="font-medium">Consultório</Label>
-                  <Button variant="outline" size="sm" onClick={() => removerConsultorio(consultorio.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Input
-                  placeholder="Nome do consultório"
-                  value={consultorio.nome}
-                  onChange={(e) => setConsultorios(consultorios.map(c => 
-                    c.id === consultorio.id ? { ...c, nome: e.target.value } : c
-                  ))}
-                />
-                <Input
-                  placeholder="Morada do consultório"
-                  value={consultorio.endereco}
-                  onChange={(e) => setConsultorios(consultorios.map(c => 
-                    c.id === consultorio.id ? { ...c, endereco: e.target.value } : c
-                  ))}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Código postal"
-                    value={consultorio.codigoPostal}
-                    onChange={(e) => setConsultorios(consultorios.map(c => 
-                      c.id === consultorio.id ? { ...c, codigoPostal: e.target.value } : c
-                    ))}
-                  />
-                  <Select value={consultorio.cidade} onValueChange={(value) => 
-                    setConsultorios(consultorios.map(c => 
-                      c.id === consultorio.id ? { ...c, cidade: value } : c
-                    ))
-                  }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecionar cidade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cidadesPortugal.map((cidade) => (
-                        <SelectItem key={cidade} value={cidade}>{cidade}</SelectItem>
+              <Collapsible key={consultorio.id} open={consultoriosAbertos.has(consultorio.id)} onOpenChange={() => toggleConsultorioAberto(consultorio.id)}>
+                <div className="p-4 border rounded">
+                  <div className="flex justify-between items-center">
+                    <Label className="font-medium">
+                      {consultorio.nome || `Consultório ${consultorios.indexOf(consultorio) + 1}`}
+                    </Label>
+                    <div className="flex gap-2">
+                      <CollapsibleTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          {consultoriosAbertos.has(consultorio.id) ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Edit className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <Button variant="outline" size="sm" onClick={() => removerConsultorio(consultorio.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <CollapsibleContent className="space-y-3 pt-3">
+                    <Input
+                      placeholder="Nome do consultório"
+                      value={consultorio.nome}
+                      onChange={(e) => setConsultorios(consultorios.map(c => 
+                        c.id === consultorio.id ? { ...c, nome: e.target.value } : c
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Latitude (opcional)"
-                    value={consultorio.latitude}
-                    onChange={(e) => setConsultorios(consultorios.map(c => 
-                      c.id === consultorio.id ? { ...c, latitude: e.target.value } : c
-                    ))}
-                  />
-                  <Input
-                    placeholder="Longitude (opcional)"
-                    value={consultorio.longitude}
-                    onChange={(e) => setConsultorios(consultorios.map(c => 
-                      c.id === consultorio.id ? { ...c, longitude: e.target.value } : c
-                    ))}
-                  />
-                </div>
-                <Textarea
-                  placeholder="Direções extras (informações adicionais para encontrar)"
-                  value={consultorio.direcoes}
-                  onChange={(e) => setConsultorios(consultorios.map(c => 
-                    c.id === consultorio.id ? { ...c, direcoes: e.target.value } : c
-                  ))}
-                />
-                
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <Label className="font-medium">Contactos Telefónicos</Label>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => adicionarTelefoneConsultorio(consultorio.id)}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Adicionar Telefone
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    {consultorio.telefones?.map((telefone, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Select 
-                          value={telefone.prefixo} 
-                          onValueChange={(value) => 
-                            setConsultorios(consultorios.map(c => 
-                              c.id === consultorio.id 
-                                ? { ...c, telefones: c.telefones.map((t, i) => 
-                                    i === index ? { ...t, prefixo: value } : t
-                                  )}
-                                : c
-                            ))
-                          }
-                        >
-                          <SelectTrigger className="w-48">
-                            <SelectValue placeholder="Prefixo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {prefixosPaises.map((pais) => (
-                              <SelectItem key={pais.codigo} value={pais.codigo}>
-                                {pais.nome} ({pais.codigo})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Input
-                          placeholder="Número de telefone"
-                          value={telefone.numero}
-                          onChange={(e) => setConsultorios(consultorios.map(c => 
-                            c.id === consultorio.id 
-                              ? { ...c, telefones: c.telefones.map((t, i) => 
-                                  i === index ? { ...t, numero: e.target.value } : t
-                                )}
-                              : c
+                    />
+                    <Input
+                      placeholder="Morada do consultório"
+                      value={consultorio.endereco}
+                      onChange={(e) => setConsultorios(consultorios.map(c => 
+                        c.id === consultorio.id ? { ...c, endereco: e.target.value } : c
+                      ))}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input
+                        placeholder="Código postal"
+                        value={consultorio.codigoPostal}
+                        onChange={(e) => setConsultorios(consultorios.map(c => 
+                          c.id === consultorio.id ? { ...c, codigoPostal: e.target.value } : c
+                        ))}
+                      />
+                      <Select value={consultorio.cidade} onValueChange={(value) => 
+                        setConsultorios(consultorios.map(c => 
+                          c.id === consultorio.id ? { ...c, cidade: value } : c
+                        ))
+                      }>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecionar cidade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cidadesPortugal.map((cidade) => (
+                            <SelectItem key={cidade} value={cidade}>{cidade}</SelectItem>
                           ))}
-                          className="flex-1"
-                        />
-                        {consultorio.telefones.length > 1 && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => removerTelefoneConsultorio(consultorio.id, index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Input
+                        placeholder="Latitude (opcional)"
+                        value={consultorio.latitude}
+                        onChange={(e) => setConsultorios(consultorios.map(c => 
+                          c.id === consultorio.id ? { ...c, latitude: e.target.value } : c
+                        ))}
+                      />
+                      <Input
+                        placeholder="Longitude (opcional)"
+                        value={consultorio.longitude}
+                        onChange={(e) => setConsultorios(consultorios.map(c => 
+                          c.id === consultorio.id ? { ...c, longitude: e.target.value } : c
+                        ))}
+                      />
+                    </div>
+                    <Textarea
+                      placeholder="Direções extras (informações adicionais para encontrar)"
+                      value={consultorio.direcoes}
+                      onChange={(e) => setConsultorios(consultorios.map(c => 
+                        c.id === consultorio.id ? { ...c, direcoes: e.target.value } : c
+                      ))}
+                    />
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="font-medium">Contactos Telefónicos</Label>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => adicionarTelefoneConsultorio(consultorio.id)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Adicionar Telefone
+                        </Button>
                       </div>
-                    ))}
-                  </div>
+                      <div className="space-y-2">
+                        {consultorio.telefones?.map((telefone, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Select 
+                              value={telefone.prefixo} 
+                              onValueChange={(value) => 
+                                setConsultorios(consultorios.map(c => 
+                                  c.id === consultorio.id 
+                                    ? { ...c, telefones: c.telefones.map((t, i) => 
+                                        i === index ? { ...t, prefixo: value } : t
+                                      )}
+                                    : c
+                                ))
+                              }
+                            >
+                              <SelectTrigger className="w-48">
+                                <SelectValue placeholder="Prefixo" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {prefixosPaises.map((pais) => (
+                                  <SelectItem key={pais.codigo} value={pais.codigo}>
+                                    {pais.nome} ({pais.codigo})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              placeholder="Número de telefone"
+                              value={telefone.numero}
+                              onChange={(e) => setConsultorios(consultorios.map(c => 
+                                c.id === consultorio.id 
+                                  ? { ...c, telefones: c.telefones.map((t, i) => 
+                                      i === index ? { ...t, numero: e.target.value } : t
+                                    )}
+                                  : c
+                              ))}
+                              className="flex-1"
+                            />
+                            {consultorio.telefones.length > 1 && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => removerTelefoneConsultorio(consultorio.id, index)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             ))}
             <Button variant="outline" onClick={adicionarConsultorio}>
               <Plus className="h-4 w-4 mr-2" />
