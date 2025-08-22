@@ -50,6 +50,7 @@ interface Consultorio {
   latitude: string;
   longitude: string;
   direcoes: string;
+  telefones: {prefixo: string, numero: string}[];
 }
 
 interface TipoConsulta {
@@ -73,7 +74,6 @@ const GestaoPerfilPublico = () => {
   const [idiomas, setIdiomas] = useState<string[]>(['Português']);
   const [formacoes, setFormacoes] = useState<Formacao[]>([]);
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
-  const [telefones, setTelefones] = useState<{prefixo: string, numero: string}[]>([{prefixo: '+351', numero: ''}]);
   const [consultorios, setConsultorios] = useState<Consultorio[]>([]);
   const [seguros, setSeguros] = useState<string[]>([]);
   const [tiposConsulta, setTiposConsulta] = useState<TipoConsulta[]>([]);
@@ -186,15 +186,6 @@ const GestaoPerfilPublico = () => {
     setExperiencias(experiencias.filter(e => e.id !== id));
   };
 
-  const adicionarTelefone = () => {
-    setTelefones([...telefones, {prefixo: '+351', numero: ''}]);
-  };
-
-  const removerTelefone = (index: number) => {
-    const novosTelefones = telefones.filter((_, i) => i !== index);
-    setTelefones(novosTelefones);
-  };
-
   const adicionarConsultorio = () => {
     const novoConsultorio: Consultorio = {
       id: Date.now().toString(),
@@ -205,12 +196,29 @@ const GestaoPerfilPublico = () => {
       latitude: '',
       longitude: '',
       direcoes: '',
+      telefones: [{prefixo: '+351', numero: ''}],
     };
     setConsultorios([...consultorios, novoConsultorio]);
   };
 
   const removerConsultorio = (id: string) => {
     setConsultorios(consultorios.filter(c => c.id !== id));
+  };
+
+  const adicionarTelefoneConsultorio = (consultorioId: string) => {
+    setConsultorios(consultorios.map(c => 
+      c.id === consultorioId 
+        ? { ...c, telefones: [...c.telefones, {prefixo: '+351', numero: ''}] }
+        : c
+    ));
+  };
+
+  const removerTelefoneConsultorio = (consultorioId: string, index: number) => {
+    setConsultorios(consultorios.map(c => 
+      c.id === consultorioId 
+        ? { ...c, telefones: c.telefones.filter((_, i) => i !== index) }
+        : c
+    ));
   };
 
   const adicionarTipoConsulta = () => {
@@ -716,60 +724,6 @@ const GestaoPerfilPublico = () => {
         </CardContent>
       </Card>
 
-      {/* Contactos */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Phone className="h-5 w-5" />
-            Contactos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <Label>Números de Telefone</Label>
-            {telefones.map((telefone, index) => (
-              <div key={index} className="flex gap-2">
-                <Select 
-                  value={telefone.prefixo} 
-                  onValueChange={(value) => 
-                    setTelefones(telefones.map((t, i) => 
-                      i === index ? { ...t, prefixo: value } : t
-                    ))
-                  }
-                >
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Prefixo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {prefixosPaises.map((pais) => (
-                      <SelectItem key={pais.codigo} value={pais.codigo}>
-                        {pais.nome} ({pais.codigo})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  placeholder="Número de telefone"
-                  value={telefone.numero}
-                  onChange={(e) => setTelefones(telefones.map((t, i) => 
-                    i === index ? { ...t, numero: e.target.value } : t
-                  ))}
-                  className="flex-1"
-                />
-                {telefones.length > 1 && (
-                  <Button variant="outline" size="sm" onClick={() => removerTelefone(index)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button variant="outline" size="sm" onClick={adicionarTelefone}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Telefone
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Consultórios */}
       <Card>
@@ -849,6 +803,70 @@ const GestaoPerfilPublico = () => {
                     c.id === consultorio.id ? { ...c, direcoes: e.target.value } : c
                   ))}
                 />
+                
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="font-medium">Contactos Telefónicos</Label>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => adicionarTelefoneConsultorio(consultorio.id)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adicionar Telefone
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {consultorio.telefones?.map((telefone, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Select 
+                          value={telefone.prefixo} 
+                          onValueChange={(value) => 
+                            setConsultorios(consultorios.map(c => 
+                              c.id === consultorio.id 
+                                ? { ...c, telefones: c.telefones.map((t, i) => 
+                                    i === index ? { ...t, prefixo: value } : t
+                                  )}
+                                : c
+                            ))
+                          }
+                        >
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Prefixo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {prefixosPaises.map((pais) => (
+                              <SelectItem key={pais.codigo} value={pais.codigo}>
+                                {pais.nome} ({pais.codigo})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="Número de telefone"
+                          value={telefone.numero}
+                          onChange={(e) => setConsultorios(consultorios.map(c => 
+                            c.id === consultorio.id 
+                              ? { ...c, telefones: c.telefones.map((t, i) => 
+                                  i === index ? { ...t, numero: e.target.value } : t
+                                )}
+                              : c
+                          ))}
+                          className="flex-1"
+                        />
+                        {consultorio.telefones.length > 1 && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => removerTelefoneConsultorio(consultorio.id, index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
             <Button variant="outline" onClick={adicionarConsultorio}>
