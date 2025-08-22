@@ -30,6 +30,7 @@ interface Appointment {
   documents: string[];
   type: string;
   observacoes?: string;
+  status: 'pending' | 'completed' | 'cancelled' | 'not_completed';
 }
 
 interface Absence {
@@ -81,6 +82,7 @@ const Calendario = () => {
       documents: ['Exame de sangue', 'Eletrocardiograma'],
       type: 'Consulta de Rotina',
       observacoes: 'Paciente apresenta histórico de hipertensão. Recomendar acompanhamento cardiológico.',
+      status: 'pending',
     },
     {
       id: '2',
@@ -92,6 +94,58 @@ const Calendario = () => {
       documents: ['Raio-X do tórax'],
       type: 'Primeira Consulta',
       observacoes: 'Primera consulta para avaliação geral. Paciente relata tosse persistente.',
+      status: 'pending',
+    },
+    // Exemplo: Consulta cancelada às 11:00 + nova consulta marcada no mesmo horário
+    {
+      id: '7',
+      patientName: 'Carlos Ferreira',
+      time: '11:00',
+      date: new Date(),
+      hasInsurance: true,
+      location: 'Consultório A',
+      documents: [],
+      type: 'Consulta de Rotina',
+      observacoes: 'Consulta cancelada pelo paciente - reagendamento solicitado',
+      status: 'cancelled',
+    },
+    {
+      id: '8',
+      patientName: 'Lucia Martins',
+      time: '11:00',
+      date: new Date(),
+      hasInsurance: false,
+      location: 'Consultório A',
+      documents: ['Exames laboratoriais'],
+      type: 'Primeira Consulta',
+      observacoes: 'Nova consulta marcada após cancelamento anterior',
+      status: 'pending',
+    },
+    // Consulta realizada
+    {
+      id: '9',
+      patientName: 'Sandra Oliveira',
+      time: '08:30',
+      date: new Date(),
+      hasInsurance: true,
+      location: 'Consultório B',
+      documents: ['Receituário'],
+      type: 'Retorno',
+      observacoes: 'Consulta realizada com sucesso. Medicação ajustada.',
+      status: 'completed',
+    },
+    // Consulta não realizada
+    {
+      id: '10',
+      patientName: 'Miguel Costa',
+      time: '16:30',
+      date: new Date(),
+      hasInsurance: false,
+      location: 'Consultório A',
+      documents: [],
+      type: 'Urgência',
+      observacoes: 'Paciente não compareceu sem aviso prévio',
+      status: 'not_completed',
     },
     {
       id: '3',
@@ -102,6 +156,7 @@ const Calendario = () => {
       location: 'Consultório A',
       documents: [],
       type: 'Retorno',
+      status: 'pending',
     },
     {
       id: '4',
@@ -112,6 +167,7 @@ const Calendario = () => {
       location: 'Consultório A',
       documents: ['Ultrassom'],
       type: 'Consulta de Rotina',
+      status: 'pending',
     },
     {
       id: '5',
@@ -122,6 +178,7 @@ const Calendario = () => {
       location: 'Consultório B',
       documents: [],
       type: 'Urgência',
+      status: 'pending',
     },
     {
       id: '6',
@@ -132,6 +189,7 @@ const Calendario = () => {
       location: 'Consultório A',
       documents: ['Eletrocardiograma'],
       type: 'Retorno',
+      status: 'pending',
     },
   ]);
 
@@ -217,6 +275,10 @@ const Calendario = () => {
       (apt) => apt.date.toDateString() === date.toDateString() && 
       selectedAppointmentTypes.includes(apt.type)
     );
+  };
+
+  const getAppointmentsByTimeSlot = (date: Date, time: string) => {
+    return getAppointmentsForDate(date).filter(apt => apt.time === time);
   };
 
   // Função para navegar para uma semana específica baseada na data selecionada
@@ -388,7 +450,12 @@ const Calendario = () => {
   };
 
   // Componente para consulta arrastável
-  const DraggableAppointment = ({ appointment, day }: { appointment: Appointment; day: Date }) => {
+  const DraggableAppointment = ({ appointment, day, appointmentIndex, totalAppointments }: { 
+    appointment: Appointment; 
+    day: Date; 
+    appointmentIndex: number;
+    totalAppointments: number;
+  }) => {
     const {
       attributes,
       listeners,
@@ -403,31 +470,67 @@ const Calendario = () => {
       transform: CSS.Translate.toString(transform),
     } : undefined;
 
+    // Calcular altura e posição para consultas sobrepostas
+    const appointmentHeight = totalAppointments > 1 ? 28 : 56; // Reduzir altura se múltiplas consultas
+    const topOffset = appointmentIndex * (appointmentHeight + 2); // Pequeno espaço entre consultas
+
     const combinedStyle = {
-      top: `${getAppointmentPosition(appointment.time)}px`,
-      height: '56px',
+      top: `${getAppointmentPosition(appointment.time) + topOffset}px`,
+      height: `${appointmentHeight}px`,
       ...style
+    };
+
+    const getStatusColor = (status: string, originalColor: string) => {
+      switch (status) {
+        case 'cancelled':
+          return 'bg-red-50 text-red-700 border-red-200 opacity-70';
+        case 'completed':
+          return 'bg-green-50 text-green-700 border-green-200 opacity-80';
+        case 'not_completed':
+          return 'bg-orange-50 text-orange-700 border-orange-200 opacity-70';
+        default:
+          return originalColor;
+      }
+    };
+
+    const getStatusIcon = (status: string) => {
+      switch (status) {
+        case 'cancelled':
+          return '❌';
+        case 'completed':
+          return '✅';
+        case 'not_completed':
+          return '❌';
+        default:
+          return '';
+      }
     };
 
     return (
       <div
         ref={setNodeRef}
         style={combinedStyle}
-        {...listeners}
-        {...attributes}
+        {...(appointment.status === 'pending' ? listeners : {})}
+        {...(appointment.status === 'pending' ? attributes : {})}
         className={cn(
-          "absolute left-1 right-1 p-1 rounded text-xs cursor-grab border select-none",
-          getAppointmentColor(appointment.type),
-          isDragging ? "opacity-50 z-50" : "hover:opacity-80 transition-opacity z-10"
+          "absolute left-1 right-1 p-1 rounded text-xs border select-none",
+          getStatusColor(appointment.status, getAppointmentColor(appointment.type)),
+          appointment.status === 'pending' ? "cursor-grab" : "cursor-pointer",
+          isDragging ? "opacity-50 z-50" : "hover:opacity-90 transition-opacity z-10"
         )}
         onClick={(e) => {
           e.stopPropagation();
           setSelectedAppointment(appointment);
         }}
       >
-        <div className="font-medium truncate">{appointment.time}</div>
+        <div className="font-medium truncate flex items-center gap-1">
+          <span>{getStatusIcon(appointment.status)}</span>
+          <span>{appointment.time}</span>
+        </div>
         <div className="truncate">{appointment.patientName}</div>
-        <div className="truncate text-xs opacity-75">{appointment.type}</div>
+        {appointmentHeight > 28 && (
+          <div className="truncate text-xs opacity-75">{appointment.type}</div>
+        )}
       </div>
     );
   };
@@ -811,10 +914,32 @@ const Calendario = () => {
                       );
                     })}
 
-                    {/* Consultas do dia - agora draggable */}
-                    {getAppointmentsForDate(day).map((appointment) => (
-                      <DraggableAppointment key={appointment.id} appointment={appointment} day={day} />
-                    ))}
+                    {/* Consultas do dia - agora com suporte para múltiplas no mesmo horário */}
+                    {(() => {
+                      const appointmentsByTime = new Map<string, Appointment[]>();
+                      
+                      // Agrupar consultas por horário
+                      getAppointmentsForDate(day).forEach(appointment => {
+                        const timeKey = appointment.time;
+                        if (!appointmentsByTime.has(timeKey)) {
+                          appointmentsByTime.set(timeKey, []);
+                        }
+                        appointmentsByTime.get(timeKey)!.push(appointment);
+                      });
+
+                      // Renderizar consultas agrupadas
+                      return Array.from(appointmentsByTime.entries()).flatMap(([time, appointments]) =>
+                        appointments.map((appointment, index) => (
+                          <DraggableAppointment 
+                            key={appointment.id} 
+                            appointment={appointment} 
+                            day={day}
+                            appointmentIndex={index}
+                            totalAppointments={appointments.length}
+                          />
+                        ))
+                      );
+                    })()}
                   </div>
                 ))}
                 </div>
@@ -833,7 +958,12 @@ const Calendario = () => {
           </DialogHeader>
           {selectedAppointment && (
             <AppointmentDetails
-              appointment={selectedAppointment}
+              appointment={{
+                ...selectedAppointment,
+                status: selectedAppointment.status === 'pending' ? 'pending' : 
+                        selectedAppointment.status === 'cancelled' ? 'not_completed' :
+                        selectedAppointment.status as 'completed' | 'not_completed'
+              }}
               onClose={() => setSelectedAppointment(null)}
               onUpdateAppointment={handleUpdateAppointment}
               onCancelAppointment={handleCancelAppointment}
