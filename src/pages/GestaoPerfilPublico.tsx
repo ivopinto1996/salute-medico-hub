@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X, Edit, Check, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X, Edit, Check, AlertCircle, CheckCircle2, Circle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -331,29 +331,13 @@ const GestaoPerfilPublico = () => {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-base">
-            <span className="flex items-center gap-2">
-              {perfilCompleto ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-              ) : (
-                <AlertCircle className="h-4 w-4 text-orange-600" />
-              )}
-              Estado do Perfil
-            </span>
+            <span>Estado do Perfil</span>
             <Badge variant={perfilCompleto ? "default" : "destructive"} className="text-xs">
               {perfilCompleto ? "Ativo" : "Inativo"}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-3">
-          {/* Alert de perfil incompleto */}
-          {!perfilCompleto && (
-            <Alert variant="destructive" className="py-2">
-              <AlertCircle className="h-3.5 w-3.5" />
-              <AlertDescription className="text-xs">
-                Complete as secções obrigatórias para ativar o seu perfil e permitir marcações.
-              </AlertDescription>
-            </Alert>
-          )}
           <div className="flex items-center justify-between gap-4">
             <Progress value={progressoPercentagem} className="h-1.5 flex-1" />
             <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{seccoesCompletas}/3</span>
@@ -364,7 +348,7 @@ const GestaoPerfilPublico = () => {
               {consultoriosPreenchidos ? (
                 <CheckCircle2 className="h-3 w-3 text-green-600" />
               ) : (
-                <AlertCircle className="h-3 w-3 text-orange-600" />
+                <Circle className="h-3 w-3 text-muted-foreground" />
               )}
               <span className={consultoriosPreenchidos ? "text-green-600" : ""}>
                 Consultórios
@@ -374,7 +358,7 @@ const GestaoPerfilPublico = () => {
               {horarioPreenchido ? (
                 <CheckCircle2 className="h-3 w-3 text-green-600" />
               ) : (
-                <AlertCircle className="h-3 w-3 text-orange-600" />
+                <Circle className="h-3 w-3 text-muted-foreground" />
               )}
               <span className={horarioPreenchido ? "text-green-600" : ""}>
                 Horário
@@ -384,13 +368,23 @@ const GestaoPerfilPublico = () => {
               {tiposConsultaPreenchidos ? (
                 <CheckCircle2 className="h-3 w-3 text-green-600" />
               ) : (
-                <AlertCircle className="h-3 w-3 text-orange-600" />
+                <Circle className="h-3 w-3 text-muted-foreground" />
               )}
               <span className={tiposConsultaPreenchidos ? "text-green-600" : ""}>
                 Tipos de Consulta
               </span>
             </div>
           </div>
+
+          {/* Alert de perfil incompleto */}
+          {!perfilCompleto && (
+            <Alert className="py-2">
+              <AlertCircle className="h-3.5 w-3.5" />
+              <AlertDescription className="text-xs">
+                Complete as secções obrigatórias para ativar o seu perfil e permitir marcações.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
