@@ -391,9 +391,12 @@ const GestaoPerfilPublico = () => {
       {/* Sobre Mim */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Sobre Mim
+          <CardTitle className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Sobre Mim
+            </div>
+            <span className="text-xs font-normal text-muted-foreground">Secção opcional</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -988,9 +991,12 @@ const GestaoPerfilPublico = () => {
       {/* Seguros */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Seguros Aceitos
+          <CardTitle className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Seguros Aceitos
+            </div>
+            <span className="text-xs font-normal text-muted-foreground">Secção opcional</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1064,9 +1070,12 @@ const GestaoPerfilPublico = () => {
       {/* FAQs */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5" />
-            Perguntas Frequentes (FAQs)
+          <CardTitle className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              Perguntas Frequentes (FAQs)
+            </div>
+            <span className="text-xs font-normal text-muted-foreground">Secção opcional</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
