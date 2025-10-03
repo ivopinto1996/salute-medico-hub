@@ -340,59 +340,56 @@ const GestaoPerfilPublico = () => {
 
       {/* Card de progresso */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-base">
             <span className="flex items-center gap-2">
               {perfilCompleto ? (
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
               ) : (
-                <AlertCircle className="h-5 w-5 text-orange-600" />
+                <AlertCircle className="h-4 w-4 text-orange-600" />
               )}
               Estado do Perfil
             </span>
-            <Badge variant={perfilCompleto ? "default" : "destructive"}>
+            <Badge variant={perfilCompleto ? "default" : "destructive"} className="text-xs">
               {perfilCompleto ? "Ativo" : "Inativo"}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Progresso do perfil</span>
-              <span className="font-medium">{seccoesCompletas}/3 secções completas</span>
-            </div>
-            <Progress value={progressoPercentagem} className="h-2" />
+        <CardContent className="pt-0 space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <Progress value={progressoPercentagem} className="h-1.5 flex-1" />
+            <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{seccoesCompletas}/3</span>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
+          <div className="flex gap-4 text-xs">
+            <div className="flex items-center gap-1.5">
               {consultoriosPreenchidos ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-3 w-3 text-green-600" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-orange-600" />
+                <AlertCircle className="h-3 w-3 text-orange-600" />
               )}
               <span className={consultoriosPreenchidos ? "text-green-600" : ""}>
                 Consultórios
               </span>
             </div>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-1.5">
               {horarioPreenchido ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-3 w-3 text-green-600" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-orange-600" />
+                <AlertCircle className="h-3 w-3 text-orange-600" />
               )}
               <span className={horarioPreenchido ? "text-green-600" : ""}>
-                Horário de Consultas
+                Horário
               </span>
             </div>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-1.5">
               {tiposConsultaPreenchidos ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-3 w-3 text-green-600" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-orange-600" />
+                <AlertCircle className="h-3 w-3 text-orange-600" />
               )}
               <span className={tiposConsultaPreenchidos ? "text-green-600" : ""}>
-                Tipos de Consulta e Preços
+                Tipos de Consulta
               </span>
             </div>
           </div>
