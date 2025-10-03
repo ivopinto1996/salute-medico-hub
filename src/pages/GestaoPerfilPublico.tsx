@@ -378,7 +378,7 @@ const GestaoPerfilPublico = () => {
 
           {/* Alert de perfil incompleto */}
           {!perfilCompleto && (
-            <Alert className="py-2">
+            <Alert variant="primary" className="py-2">
               <AlertCircle className="h-3.5 w-3.5" />
               <AlertDescription className="text-xs">
                 Complete as secções obrigatórias para ativar o seu perfil e permitir marcações.
