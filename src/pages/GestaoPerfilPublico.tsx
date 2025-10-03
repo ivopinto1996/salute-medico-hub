@@ -624,7 +624,7 @@ const GestaoPerfilPublico = () => {
               <Clock className="h-5 w-5" />
               Horário de Consultas
             </div>
-            <Badge variant="destructive">Obrigatório</Badge>
+            <span className="text-xs text-muted-foreground">*Secção obrigatória</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -820,7 +820,7 @@ const GestaoPerfilPublico = () => {
               <MapPin className="h-5 w-5" />
               Consultórios
             </div>
-            <Badge variant="destructive">Obrigatório</Badge>
+            <span className="text-xs text-muted-foreground">*Secção obrigatória</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1027,7 +1027,7 @@ const GestaoPerfilPublico = () => {
               <CreditCard className="h-5 w-5" />
               Tipos de Consulta e Preços
             </div>
-            <Badge variant="destructive">Obrigatório</Badge>
+            <span className="text-xs text-muted-foreground">*Secção obrigatória</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
