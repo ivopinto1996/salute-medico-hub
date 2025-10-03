@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X, Edit, Check } from 'lucide-react';
+import { Plus, Trash2, User, Clock, Phone, MapPin, Shield, CreditCard, HelpCircle, Camera, X, Edit, Check, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
@@ -307,6 +309,15 @@ const GestaoPerfilPublico = () => {
     });
   };
 
+  // Verificar secções obrigatórias
+  const consultoriosPreenchidos = consultorios.length > 0 && consultorios.some(c => c.nome && c.endereco && c.cidade);
+  const horarioPreenchido = horarioTrabalho.length > 0;
+  const tiposConsultaPreenchidos = tiposConsulta.length > 0 && tiposConsulta.some(t => t.tipo && t.preco);
+  
+  const perfilCompleto = consultoriosPreenchidos && horarioPreenchido && tiposConsultaPreenchidos;
+  const seccoesCompletas = [consultoriosPreenchidos, horarioPreenchido, tiposConsultaPreenchidos].filter(Boolean).length;
+  const progressoPercentagem = (seccoesCompletas / 3) * 100;
+
   return (
     <div className="space-y-6">
       <div>
@@ -315,6 +326,78 @@ const GestaoPerfilPublico = () => {
           Configure as informações que aparecerão no seu perfil público para os pacientes
         </p>
       </div>
+
+      {/* Alert de perfil incompleto */}
+      {!perfilCompleto && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Perfil Inativo</AlertTitle>
+          <AlertDescription>
+            O seu perfil não está visível para pacientes marcarem consultas. Complete as secções obrigatórias para ativar o seu perfil.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Card de progresso */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              {perfilCompleto ? (
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+              )}
+              Estado do Perfil
+            </span>
+            <Badge variant={perfilCompleto ? "default" : "destructive"}>
+              {perfilCompleto ? "Ativo" : "Inativo"}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-muted-foreground">Progresso do perfil</span>
+              <span className="font-medium">{seccoesCompletas}/3 secções completas</span>
+            </div>
+            <Progress value={progressoPercentagem} className="h-2" />
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              {consultoriosPreenchidos ? (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+              )}
+              <span className={consultoriosPreenchidos ? "text-green-600" : ""}>
+                Consultórios
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              {horarioPreenchido ? (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+              )}
+              <span className={horarioPreenchido ? "text-green-600" : ""}>
+                Horário de Consultas
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              {tiposConsultaPreenchidos ? (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+              )}
+              <span className={tiposConsultaPreenchidos ? "text-green-600" : ""}>
+                Tipos de Consulta e Preços
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Sobre Mim */}
       <Card>
@@ -547,9 +630,12 @@ const GestaoPerfilPublico = () => {
       {/* Horário */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Horário de Consultas
+          <CardTitle className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Horário de Consultas
+            </div>
+            <Badge variant="destructive">Obrigatório</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -740,9 +826,12 @@ const GestaoPerfilPublico = () => {
       {/* Consultórios */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Consultórios
+          <CardTitle className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Consultórios
+            </div>
+            <Badge variant="destructive">Obrigatório</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -944,9 +1033,12 @@ const GestaoPerfilPublico = () => {
       {/* Tipos de Consulta */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Tipos de Consulta e Preços
+          <CardTitle className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Tipos de Consulta e Preços
+            </div>
+            <Badge variant="destructive">Obrigatório</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
