@@ -327,17 +327,6 @@ const GestaoPerfilPublico = () => {
         </p>
       </div>
 
-      {/* Alert de perfil incompleto */}
-      {!perfilCompleto && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Perfil Inativo</AlertTitle>
-          <AlertDescription>
-            O seu perfil não está visível para pacientes marcarem consultas. Complete as secções obrigatórias para ativar o seu perfil.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Card de progresso */}
       <Card>
         <CardHeader className="pb-3">
@@ -356,6 +345,15 @@ const GestaoPerfilPublico = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-3">
+          {/* Alert de perfil incompleto */}
+          {!perfilCompleto && (
+            <Alert variant="destructive" className="py-2">
+              <AlertCircle className="h-3.5 w-3.5" />
+              <AlertDescription className="text-xs">
+                Complete as secções obrigatórias para ativar o seu perfil e permitir marcações.
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="flex items-center justify-between gap-4">
             <Progress value={progressoPercentagem} className="h-1.5 flex-1" />
             <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{seccoesCompletas}/3</span>
