@@ -112,20 +112,39 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Nome do Paciente e Email */}
+        {/* Email do Paciente ou Nome + Email */}
         <div className={cn("grid gap-4", showExternalEmail ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
-          {/* Nome do Paciente */}
+          {showExternalEmail && (
+            <FormField
+              control={form.control}
+              name="patientName"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Nome do Paciente
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Digite o nome do paciente" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Email do Paciente */}
           <FormField
             control={form.control}
-            name="patientName"
+            name="patientEmail"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Nome do Paciente
+                  <Mail className="h-4 w-4" />
+                  Email do Paciente {showExternalEmail && "(opcional)"}
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Digite o nome do paciente" {...field} />
+                  <Input placeholder="email@exemplo.com" type="email" {...field} />
                 </FormControl>
                 <div className="text-xs text-muted-foreground">
                   <button 
@@ -134,8 +153,8 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                     className="hover:text-primary underline transition-colors"
                   >
                     {showExternalEmail 
-                      ? "Voltar para marcação de consulta a paciente registado"
-                      : "O paciente não está registado na plataforma?"
+                      ? "Voltar para marcação de consulta a paciente externo"
+                      : "O paciente está registado na plataforma?"
                     }
                   </button>
                 </div>
@@ -143,26 +162,6 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
               </FormItem>
             )}
           />
-
-          {/* Email do Paciente Externo - Condicional */}
-          {showExternalEmail && (
-            <FormField
-              control={form.control}
-              name="patientEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email do Paciente (opcional)
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="email@exemplo.com" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
         </div>
 
         {/* Tipo de Consulta */}
