@@ -205,14 +205,11 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    Email do Paciente para Convite
+                    Email do Paciente (opcional)
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="email@exemplo.com" type="email" {...field} />
                   </FormControl>
-                  <div className="text-xs text-muted-foreground">
-                    Um convite será enviado para este email
-                  </div>
                   <FormMessage />
                 </FormItem>
               )}
