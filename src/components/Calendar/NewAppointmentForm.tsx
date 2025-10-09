@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, MapPin, User, Check, ChevronsUpDown } from 'lucide-react';
+import { CalendarIcon, Clock, MapPin, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 const formSchema = z.object({
   patientName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -36,15 +35,6 @@ interface NewAppointmentFormProps {
 export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [openPatientCombo, setOpenPatientCombo] = useState(false);
-
-  // Lista mock de utilizadores registrados - futuramente virá do backend
-  const registeredPatients = [
-    { id: '1', name: 'João Silva', email: 'joao@email.com' },
-    { id: '2', name: 'Maria Santos', email: 'maria@email.com' },
-    { id: '3', name: 'Pedro Costa', email: 'pedro@email.com' },
-    { id: '4', name: 'Ana Ferreira', email: 'ana@email.com' },
-  ];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -111,107 +101,19 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Nome do Paciente - Campo Híbrido */}
+          {/* Nome do Paciente */}
           <FormField
             control={form.control}
             name="patientName"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Nome do Paciente
                 </FormLabel>
-                <Popover open={openPatientCombo} onOpenChange={setOpenPatientCombo}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value || "Selecione ou digite um nome"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0 z-50" align="start">
-                    <Command shouldFilter={false}>
-                      <CommandInput 
-                        placeholder="Buscar ou digitar nome do paciente..." 
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                      />
-                      <CommandList>
-                        {registeredPatients.filter(patient => 
-                          !field.value || patient.name.toLowerCase().includes(field.value.toLowerCase())
-                        ).length === 0 && field.value ? (
-                          <CommandGroup>
-                            <CommandItem
-                              value={field.value}
-                              onSelect={() => {
-                                field.onChange(field.value);
-                                setOpenPatientCombo(false);
-                              }}
-                            >
-                              <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                              <div className="flex flex-col">
-                                <span>Usar: {field.value}</span>
-                                <span className="text-xs text-muted-foreground">Paciente externo</span>
-                              </div>
-                            </CommandItem>
-                          </CommandGroup>
-                        ) : null}
-                        
-                        {registeredPatients.filter(patient => 
-                          !field.value || patient.name.toLowerCase().includes(field.value.toLowerCase())
-                        ).length > 0 && (
-                          <CommandGroup heading="Pacientes Registrados">
-                            {registeredPatients
-                              .filter(patient => 
-                                !field.value || patient.name.toLowerCase().includes(field.value.toLowerCase())
-                              )
-                              .map((patient) => (
-                                <CommandItem
-                                  key={patient.id}
-                                  value={patient.name}
-                                  onSelect={() => {
-                                    field.onChange(patient.name);
-                                    setOpenPatientCombo(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      patient.name === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  <div className="flex flex-col">
-                                    <span>{patient.name}</span>
-                                    <span className="text-xs text-muted-foreground">{patient.email}</span>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        )}
-                        
-                        {!field.value && (
-                          <CommandEmpty>
-                            <div className="text-sm text-muted-foreground p-2">
-                              Digite o nome do paciente
-                            </div>
-                          </CommandEmpty>
-                        )}
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input placeholder="Digite o nome completo" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
