@@ -15,7 +15,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   patientType: z.enum(['registered', 'external'], {
@@ -135,12 +136,24 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
             <FormItem className="space-y-3">
               <FormLabel>Tipo de Paciente</FormLabel>
               <FormControl>
-                <Tabs value={field.value} onValueChange={field.onChange} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="registered">Paciente Registrado</TabsTrigger>
-                    <TabsTrigger value="external">Paciente Externo</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="registered" id="registered" />
+                    <Label htmlFor="registered" className="cursor-pointer">
+                      Paciente Registrado
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="external" id="external" />
+                    <Label htmlFor="external" className="cursor-pointer">
+                      Paciente Externo
+                    </Label>
+                  </div>
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
