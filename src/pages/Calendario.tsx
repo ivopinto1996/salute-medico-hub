@@ -31,6 +31,9 @@ interface Appointment {
   type: string;
   observacoes?: string;
   status: 'pending' | 'completed' | 'cancelled' | 'not_completed';
+  cartaoCidadao?: string;
+  nif?: string;
+  sns?: string;
 }
 
 interface Absence {
@@ -83,6 +86,9 @@ const Calendario = () => {
       type: 'Consulta de Rotina',
       observacoes: 'Paciente apresenta histórico de hipertensão. Recomendar acompanhamento cardiológico.',
       status: 'pending',
+      cartaoCidadao: '12345678 9 ZZ0',
+      nif: '123456789',
+      sns: '123456789012',
     },
     {
       id: '2',
@@ -95,6 +101,9 @@ const Calendario = () => {
       type: 'Primeira Consulta',
       observacoes: 'Primera consulta para avaliação geral. Paciente relata tosse persistente.',
       status: 'pending',
+      cartaoCidadao: '98765432 1 ZZ8',
+      nif: '987654321',
+      sns: '987654321098',
     },
     // Exemplo: Consulta cancelada às 11:00 + nova consulta marcada no mesmo horário
     {
@@ -108,6 +117,9 @@ const Calendario = () => {
       type: 'Consulta de Rotina',
       observacoes: 'Consulta cancelada pelo paciente - reagendamento solicitado',
       status: 'cancelled',
+      cartaoCidadao: '11223344 5 ZZ1',
+      nif: '112233445',
+      sns: '112233445566',
     },
     {
       id: '8',
@@ -120,6 +132,9 @@ const Calendario = () => {
       type: 'Primeira Consulta',
       observacoes: 'Nova consulta marcada após cancelamento anterior',
       status: 'pending',
+      cartaoCidadao: '55667788 9 ZZ3',
+      nif: '556677889',
+      sns: '556677889900',
     },
     // Consulta realizada
     {
@@ -133,6 +148,9 @@ const Calendario = () => {
       type: 'Retorno',
       observacoes: 'Consulta realizada com sucesso. Medicação ajustada.',
       status: 'completed',
+      cartaoCidadao: '22334455 6 ZZ7',
+      nif: '223344556',
+      sns: '223344556677',
     },
     // Consulta não realizada
     {
@@ -146,6 +164,9 @@ const Calendario = () => {
       type: 'Urgência',
       observacoes: 'Paciente não compareceu sem aviso prévio',
       status: 'not_completed',
+      cartaoCidadao: '33445566 7 ZZ2',
+      nif: '334455667',
+      sns: '334455667788',
     },
     {
       id: '3',
@@ -157,6 +178,9 @@ const Calendario = () => {
       documents: [],
       type: 'Retorno',
       status: 'pending',
+      cartaoCidadao: '44556677 8 ZZ4',
+      nif: '445566778',
+      sns: '445566778899',
     },
     {
       id: '4',
@@ -168,6 +192,9 @@ const Calendario = () => {
       documents: ['Ultrassom'],
       type: 'Consulta de Rotina',
       status: 'pending',
+      cartaoCidadao: '66778899 0 ZZ5',
+      nif: '667788990',
+      sns: '667788990011',
     },
     {
       id: '5',
@@ -179,6 +206,9 @@ const Calendario = () => {
       documents: [],
       type: 'Urgência',
       status: 'pending',
+      cartaoCidadao: '77889900 1 ZZ6',
+      nif: '778899001',
+      sns: '778899001122',
     },
     {
       id: '6',
@@ -190,6 +220,9 @@ const Calendario = () => {
       documents: ['Eletrocardiograma'],
       type: 'Retorno',
       status: 'pending',
+      cartaoCidadao: '88990011 2 ZZ9',
+      nif: '889900112',
+      sns: '889900112233',
     },
   ]);
 
