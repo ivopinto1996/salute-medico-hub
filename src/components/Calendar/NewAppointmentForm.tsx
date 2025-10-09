@@ -162,7 +162,7 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                       onClick={() => setShowExternalEmail(!showExternalEmail)}
                       className="hover:text-primary underline transition-colors"
                     >
-                      O paciente está registado na plataforma?
+                      Marcar consulta para paciente não registado
                     </button>
                   </div>
                 )}
