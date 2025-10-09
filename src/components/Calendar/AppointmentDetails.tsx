@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, MapPin, FileText, User, CreditCard, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, MapPin, FileText, User, CreditCard, Calendar, CheckCircle, XCircle, Stethoscope } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -210,6 +210,7 @@ export const AppointmentDetails = ({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2 text-sm">
+            <Stethoscope className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">Tipo de consulta:</span>
             <span className="text-muted-foreground">{appointment.type}</span>
           </div>
