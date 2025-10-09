@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, MapPin, User } from 'lucide-react';
+import { CalendarIcon, Clock, MapPin, User, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 const formSchema = z.object({
   patientName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -35,6 +36,15 @@ interface NewAppointmentFormProps {
 export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [openPatientCombo, setOpenPatientCombo] = useState(false);
+
+  // Lista mock de utilizadores registrados - futuramente virá do backend
+  const registeredPatients = [
+    { id: '1', name: 'João Silva', email: 'joao@email.com' },
+    { id: '2', name: 'Maria Santos', email: 'maria@email.com' },
+    { id: '3', name: 'Pedro Costa', email: 'pedro@email.com' },
+    { id: '4', name: 'Ana Ferreira', email: 'ana@email.com' },
+  ];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -101,19 +111,88 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Nome do Paciente */}
+          {/* Nome do Paciente - Campo Híbrido */}
           <FormField
             control={form.control}
             name="patientName"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Nome do Paciente
                 </FormLabel>
-                <FormControl>
-                  <Input placeholder="Digite o nome completo" {...field} />
-                </FormControl>
+                <Popover open={openPatientCombo} onOpenChange={setOpenPatientCombo}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "w-full justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value || "Selecione ou digite um nome"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" align="start">
+                    <Command>
+                      <CommandInput 
+                        placeholder="Buscar ou digitar nome do paciente..." 
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                        }}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          <div className="text-sm text-muted-foreground p-2">
+                            Nenhum paciente registrado encontrado.
+                            <div className="mt-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => {
+                                  setOpenPatientCombo(false);
+                                }}
+                              >
+                                Usar "{field.value}" como paciente externo
+                              </Button>
+                            </div>
+                          </div>
+                        </CommandEmpty>
+                        <CommandGroup heading="Pacientes Registrados">
+                          {registeredPatients.map((patient) => (
+                            <CommandItem
+                              key={patient.id}
+                              value={patient.name}
+                              onSelect={() => {
+                                field.onChange(patient.name);
+                                setOpenPatientCombo(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  patient.name === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span>{patient.name}</span>
+                                <span className="text-xs text-muted-foreground">{patient.email}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
