@@ -137,8 +137,8 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
+                  <PopoverContent className="w-full p-0 z-50" align="start">
+                    <Command shouldFilter={false}>
                       <CommandInput 
                         placeholder="Buscar ou digitar nome do paciente..." 
                         value={field.value}
@@ -147,48 +147,67 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                         }}
                       />
                       <CommandList>
-                        <CommandEmpty>
-                          <div className="text-sm text-muted-foreground p-2">
-                            Nenhum paciente registrado encontrado.
-                            <div className="mt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full"
-                                onClick={() => {
-                                  setOpenPatientCombo(false);
-                                }}
-                              >
-                                Usar "{field.value}" como paciente externo
-                              </Button>
-                            </div>
-                          </div>
-                        </CommandEmpty>
-                        <CommandGroup heading="Pacientes Registrados">
-                          {registeredPatients.map((patient) => (
+                        {registeredPatients.filter(patient => 
+                          !field.value || patient.name.toLowerCase().includes(field.value.toLowerCase())
+                        ).length === 0 && field.value ? (
+                          <CommandGroup>
                             <CommandItem
-                              key={patient.id}
-                              value={patient.name}
+                              value={field.value}
                               onSelect={() => {
-                                field.onChange(patient.name);
+                                field.onChange(field.value);
                                 setOpenPatientCombo(false);
                               }}
                             >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  patient.name === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
+                              <User className="mr-2 h-4 w-4 text-muted-foreground" />
                               <div className="flex flex-col">
-                                <span>{patient.name}</span>
-                                <span className="text-xs text-muted-foreground">{patient.email}</span>
+                                <span>Usar: {field.value}</span>
+                                <span className="text-xs text-muted-foreground">Paciente externo</span>
                               </div>
                             </CommandItem>
-                          ))}
-                        </CommandGroup>
+                          </CommandGroup>
+                        ) : null}
+                        
+                        {registeredPatients.filter(patient => 
+                          !field.value || patient.name.toLowerCase().includes(field.value.toLowerCase())
+                        ).length > 0 && (
+                          <CommandGroup heading="Pacientes Registrados">
+                            {registeredPatients
+                              .filter(patient => 
+                                !field.value || patient.name.toLowerCase().includes(field.value.toLowerCase())
+                              )
+                              .map((patient) => (
+                                <CommandItem
+                                  key={patient.id}
+                                  value={patient.name}
+                                  onSelect={() => {
+                                    field.onChange(patient.name);
+                                    setOpenPatientCombo(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      patient.name === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col">
+                                    <span>{patient.name}</span>
+                                    <span className="text-xs text-muted-foreground">{patient.email}</span>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        )}
+                        
+                        {!field.value && (
+                          <CommandEmpty>
+                            <div className="text-sm text-muted-foreground p-2">
+                              Digite o nome do paciente
+                            </div>
+                          </CommandEmpty>
+                        )}
                       </CommandList>
                     </Command>
                   </PopoverContent>
