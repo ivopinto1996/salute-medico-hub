@@ -133,7 +133,7 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                       onClick={() => setShowExternalEmail(!showExternalEmail)}
                       className="hover:text-primary underline transition-colors"
                     >
-                      Voltar para marcação de consulta a paciente externo
+                      Voltar para marcação de consulta a paciente registado
                     </button>
                   </div>
                   <FormMessage />
