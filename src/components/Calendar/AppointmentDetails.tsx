@@ -22,6 +22,9 @@ interface Appointment {
   type: string;
   status?: 'pending' | 'completed' | 'not_completed';
   observacoes?: string;
+  cartaoCidadao?: string;
+  nif?: string;
+  sns?: string;
 }
 
 interface AppointmentDetailsProps {
@@ -147,6 +150,32 @@ export const AppointmentDetails = ({
           <div className="text-sm text-muted-foreground">
             Tipo de consulta: {appointment.type}
           </div>
+
+          {(appointment.cartaoCidadao || appointment.nif || appointment.sns) && (
+            <>
+              <Separator />
+              <div className="grid grid-cols-1 gap-2 text-sm">
+                {appointment.cartaoCidadao && (
+                  <div>
+                    <span className="font-medium">Nº de Cartão de Cidadão:</span>{' '}
+                    <span className="text-muted-foreground">{appointment.cartaoCidadao}</span>
+                  </div>
+                )}
+                {appointment.nif && (
+                  <div>
+                    <span className="font-medium">Nº Identificação Fiscal (NIF):</span>{' '}
+                    <span className="text-muted-foreground">{appointment.nif}</span>
+                  </div>
+                )}
+                {appointment.sns && (
+                  <div>
+                    <span className="font-medium">Nº Utente de Saúde (SNS):</span>{' '}
+                    <span className="text-muted-foreground">{appointment.sns}</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           <Separator />
 
