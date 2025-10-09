@@ -147,35 +147,23 @@ export const AppointmentDetails = ({
               {appointment.hasInsurance ? 'Com Seguro' : 'Particular'}
             </Badge>
           </div>
-          <div className="text-sm text-muted-foreground">
-            Tipo de consulta: {appointment.type}
-          </div>
 
-          {(appointment.cartaoCidadao || appointment.nif || appointment.sns) && (
-            <>
-              <Separator />
-              <div className="grid grid-cols-1 gap-2 text-sm">
-                {appointment.cartaoCidadao && (
-                  <div>
-                    <span className="font-medium">Nº de Cartão de Cidadão:</span>{' '}
-                    <span className="text-muted-foreground">{appointment.cartaoCidadao}</span>
-                  </div>
-                )}
-                {appointment.nif && (
-                  <div>
-                    <span className="font-medium">Nº Identificação Fiscal (NIF):</span>{' '}
-                    <span className="text-muted-foreground">{appointment.nif}</span>
-                  </div>
-                )}
-                {appointment.sns && (
-                  <div>
-                    <span className="font-medium">Nº Utente de Saúde (SNS):</span>{' '}
-                    <span className="text-muted-foreground">{appointment.sns}</span>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+          <Separator />
+
+          <div className="grid grid-cols-1 gap-3 text-sm">
+            <div>
+              <span className="font-medium">Nº de Cartão de Cidadão:</span>{' '}
+              <span className="text-muted-foreground">{appointment.cartaoCidadao || '-'}</span>
+            </div>
+            <div>
+              <span className="font-medium">Nº Identificação Fiscal (NIF):</span>{' '}
+              <span className="text-muted-foreground">{appointment.nif || '-'}</span>
+            </div>
+            <div>
+              <span className="font-medium">Nº Utente de Saúde (SNS):</span>{' '}
+              <span className="text-muted-foreground">{appointment.sns || '-'}</span>
+            </div>
+          </div>
 
           <Separator />
 
@@ -221,6 +209,13 @@ export const AppointmentDetails = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium">Tipo de consulta:</span>
+            <span className="text-muted-foreground">{appointment.type}</span>
+          </div>
+
+          <Separator />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
