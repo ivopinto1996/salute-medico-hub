@@ -113,7 +113,8 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Nome do Paciente e Email */}
+        <div className={cn("grid gap-4", showExternalEmail ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
           {/* Nome do Paciente */}
           <FormField
             control={form.control}
@@ -192,55 +193,55 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
             )}
           />
 
-          {/* Tipo de Consulta */}
-          <FormField
-            control={form.control}
-            name="consultationType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo de Consulta</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+          {/* Email do Paciente Externo - Condicional */}
+          {showExternalEmail && (
+            <FormField
+              control={form.control}
+              name="patientEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Email do Paciente para Convite
+                  </FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
+                    <Input placeholder="email@exemplo.com" type="email" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    {consultationTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <div className="text-xs text-muted-foreground">
+                    Um convite será enviado para este email
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
-        {/* Email do Paciente Externo - Condicional */}
-        {showExternalEmail && (
-          <FormField
-            control={form.control}
-            name="patientEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Email do Paciente para Convite
-                </FormLabel>
+        {/* Tipo de Consulta */}
+        <FormField
+          control={form.control}
+          name="consultationType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo de Consulta</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <Input placeholder="email@exemplo.com" type="email" {...field} />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
                 </FormControl>
-                <div className="text-xs text-muted-foreground">
-                  Um convite será enviado para este email
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+                <SelectContent>
+                  {consultationTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Data */}
