@@ -37,7 +37,6 @@ interface NewAppointmentFormProps {
 export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [openPatientCombo, setOpenPatientCombo] = useState(false);
   const [showExternalEmail, setShowExternalEmail] = useState(false);
 
   // Lista mock de utilizadores registrados - futuramente virá do backend
@@ -125,60 +124,9 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                   <User className="h-4 w-4" />
                   Nome do Paciente
                 </FormLabel>
-                <Popover open={openPatientCombo} onOpenChange={setOpenPatientCombo}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value || "Selecione um paciente"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0 z-50" align="start">
-                    <Command>
-                      <CommandInput 
-                        placeholder="Buscar paciente registrado..." 
-                      />
-                      <CommandList>
-                        <CommandEmpty>Nenhum paciente encontrado.</CommandEmpty>
-                        <CommandGroup heading="Pacientes Registrados">
-                          {registeredPatients.map((patient) => (
-                            <CommandItem
-                              key={patient.id}
-                              value={patient.name}
-                              onSelect={() => {
-                                field.onChange(patient.name);
-                                form.setValue('patientEmail', patient.email);
-                                setOpenPatientCombo(false);
-                                setShowExternalEmail(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  patient.name === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col">
-                                <span>{patient.name}</span>
-                                <span className="text-xs text-muted-foreground">{patient.email}</span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input placeholder="Digite o nome do paciente" {...field} />
+                </FormControl>
                 <div className="text-xs text-muted-foreground">
                   <button 
                     type="button"
