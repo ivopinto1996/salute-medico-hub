@@ -127,6 +127,15 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                   <FormControl>
                     <Input placeholder="Digite o nome do paciente" {...field} />
                   </FormControl>
+                  <div className="text-xs text-muted-foreground">
+                    <button 
+                      type="button"
+                      onClick={() => setShowExternalEmail(!showExternalEmail)}
+                      className="hover:text-primary underline transition-colors"
+                    >
+                      Voltar para marcação de consulta a paciente externo
+                    </button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -146,18 +155,17 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                 <FormControl>
                   <Input placeholder="email@exemplo.com" type="email" {...field} />
                 </FormControl>
-                <div className="text-xs text-muted-foreground">
-                  <button 
-                    type="button"
-                    onClick={() => setShowExternalEmail(!showExternalEmail)}
-                    className="hover:text-primary underline transition-colors"
-                  >
-                    {showExternalEmail 
-                      ? "Voltar para marcação de consulta a paciente externo"
-                      : "O paciente está registado na plataforma?"
-                    }
-                  </button>
-                </div>
+                {!showExternalEmail && (
+                  <div className="text-xs text-muted-foreground">
+                    <button 
+                      type="button"
+                      onClick={() => setShowExternalEmail(!showExternalEmail)}
+                      className="hover:text-primary underline transition-colors"
+                    >
+                      O paciente está registado na plataforma?
+                    </button>
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
