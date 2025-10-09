@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, MapPin, User, Check, ChevronsUpDown } from 'lucide-react';
+import { CalendarIcon, Clock, MapPin, User, Check, ChevronsUpDown, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -15,9 +15,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
+  patientType: z.enum(['registered', 'external'], {
+    required_error: 'Selecione o tipo de paciente',
+  }),
   patientName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  patientEmail: z.string().email('Email inválido').optional().or(z.literal('')),
   date: z.date({
     required_error: 'Data é obrigatória',
   }),
@@ -26,6 +32,14 @@ const formSchema = z.object({
   location: z.string().min(1, 'Localização é obrigatória'),
   hasInsurance: z.boolean(),
   notes: z.string().optional(),
+}).refine((data) => {
+  if (data.patientType === 'external') {
+    return data.patientEmail && data.patientEmail.length > 0;
+  }
+  return true;
+}, {
+  message: 'Email é obrigatório para pacientes externos',
+  path: ['patientEmail'],
 });
 
 interface NewAppointmentFormProps {
@@ -49,7 +63,9 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      patientType: 'registered',
       patientName: '',
+      patientEmail: '',
       time: '',
       consultationType: '',
       location: '',
@@ -57,6 +73,8 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
       notes: '',
     },
   });
+
+  const patientType = form.watch('patientType');
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
@@ -110,93 +128,143 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Tipo de Paciente */}
+        <FormField
+          control={form.control}
+          name="patientType"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel>Tipo de Paciente</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="registered" id="registered" />
+                    <Label htmlFor="registered" className="cursor-pointer">
+                      Paciente Registrado
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="external" id="external" />
+                    <Label htmlFor="external" className="cursor-pointer">
+                      Paciente Externo
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Nome do Paciente - Campo Híbrido */}
-          <FormField
-            control={form.control}
-            name="patientName"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Nome do Paciente
-                </FormLabel>
-                <Popover open={openPatientCombo} onOpenChange={setOpenPatientCombo}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value || "Selecione ou digite um nome"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput 
-                        placeholder="Buscar ou digitar nome do paciente..." 
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                      />
-                      <CommandList>
-                        <CommandEmpty>
-                          <div className="text-sm text-muted-foreground p-2">
-                            Nenhum paciente registrado encontrado.
-                            <div className="mt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full"
-                                onClick={() => {
+          {/* Nome do Paciente - Condicional baseado no tipo */}
+          {patientType === 'registered' ? (
+            <FormField
+              control={form.control}
+              name="patientName"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Nome do Paciente
+                  </FormLabel>
+                  <Popover open={openPatientCombo} onOpenChange={setOpenPatientCombo}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value || "Selecione um paciente"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Buscar paciente registrado..." 
+                        />
+                        <CommandList>
+                          <CommandEmpty>Nenhum paciente encontrado.</CommandEmpty>
+                          <CommandGroup heading="Pacientes Registrados">
+                            {registeredPatients.map((patient) => (
+                              <CommandItem
+                                key={patient.id}
+                                value={patient.name}
+                                onSelect={() => {
+                                  field.onChange(patient.name);
+                                  form.setValue('patientEmail', patient.email);
                                   setOpenPatientCombo(false);
                                 }}
                               >
-                                Usar "{field.value}" como paciente externo
-                              </Button>
-                            </div>
-                          </div>
-                        </CommandEmpty>
-                        <CommandGroup heading="Pacientes Registrados">
-                          {registeredPatients.map((patient) => (
-                            <CommandItem
-                              key={patient.id}
-                              value={patient.name}
-                              onSelect={() => {
-                                field.onChange(patient.name);
-                                setOpenPatientCombo(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  patient.name === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col">
-                                <span>{patient.name}</span>
-                                <span className="text-xs text-muted-foreground">{patient.email}</span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    patient.name === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col">
+                                  <span>{patient.name}</span>
+                                  <span className="text-xs text-muted-foreground">{patient.email}</span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <>
+              <FormField
+                control={form.control}
+                name="patientName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Nome do Paciente
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Digite o nome completo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="patientEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email do Paciente
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="email@exemplo.com" type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
           {/* Tipo de Consulta */}
           <FormField
