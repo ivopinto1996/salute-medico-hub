@@ -127,11 +127,11 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                   <FormControl>
                     <Input placeholder="Digite o nome do paciente" {...field} />
                   </FormControl>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs">
                     <button 
                       type="button"
                       onClick={() => setShowExternalEmail(!showExternalEmail)}
-                      className="hover:text-primary underline transition-colors"
+                      className="text-primary hover:text-primary/80 underline transition-colors"
                     >
                       Voltar para marcação de consulta a paciente registado
                     </button>
@@ -156,11 +156,11 @@ export const NewAppointmentForm = ({ onClose, setAppointments }: NewAppointmentF
                   <Input placeholder="email@exemplo.com" type="email" {...field} />
                 </FormControl>
                 {!showExternalEmail && (
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs">
                     <button 
                       type="button"
                       onClick={() => setShowExternalEmail(!showExternalEmail)}
-                      className="hover:text-primary underline transition-colors"
+                      className="text-primary hover:text-primary/80 underline transition-colors"
                     >
                       Marcar consulta para paciente não registado
                     </button>
