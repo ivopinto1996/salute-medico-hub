@@ -1345,8 +1345,11 @@ const GestaoPerfilPublico = () => {
             <AlertDialogCancel onClick={() => setConfirmDelete({ isOpen: false, type: null })}>
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete}>
-              Eliminar
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Sim, eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
