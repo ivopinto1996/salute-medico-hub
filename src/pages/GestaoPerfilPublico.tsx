@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useBlocker } from 'react-router-dom';
+import { useLocation, useNavigate, UNSAFE_NavigationContext } from 'react-router-dom';
+import { useContext } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -531,11 +532,10 @@ const GestaoPerfilPublico = () => {
     });
   };
 
-  // Blocker para navegação interna
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
-  );
+  // Custom navigation blocker
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navigation = useContext(UNSAFE_NavigationContext).navigator;
 
   // Detectar mudanças nos dados
   useEffect(() => {
@@ -567,12 +567,52 @@ const GestaoPerfilPublico = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Abrir modal quando o blocker é acionado
+  // Interceptar navegação interna
   useEffect(() => {
-    if (blocker.state === 'blocked') {
+    if (!hasUnsavedChanges) return;
+
+    const originalPush = navigation.push;
+    const originalReplace = navigation.replace;
+
+    let targetPath: string | null = null;
+    let navigationType: 'push' | 'replace' = 'push';
+
+    navigation.push = (...args: any[]) => {
+      targetPath = args[0];
+      navigationType = 'push';
       setShowNavigationWarning(true);
-    }
-  }, [blocker.state]);
+    };
+
+    navigation.replace = (...args: any[]) => {
+      targetPath = args[0];
+      navigationType = 'replace';
+      setShowNavigationWarning(true);
+    };
+
+    const handleNavigationConfirm = () => {
+      if (targetPath) {
+        setHasUnsavedChanges(false);
+        setShowNavigationWarning(false);
+        
+        setTimeout(() => {
+          if (navigationType === 'push') {
+            originalPush.call(navigation, targetPath);
+          } else {
+            originalReplace.call(navigation, targetPath);
+          }
+        }, 0);
+      }
+    };
+
+    (window as any).__handleNavigationConfirm = handleNavigationConfirm;
+
+    return () => {
+      navigation.push = originalPush;
+      navigation.replace = originalReplace;
+      delete (window as any).__handleNavigationConfirm;
+    };
+  }, [hasUnsavedChanges, navigation]);
+
 
   const consultoriosPreenchidos = consultorios.length > 0 && consultorios.some(c => c.nome && c.endereco && c.cidade);
   const horarioPreenchido = horarioTrabalho.length > 0;
@@ -1440,7 +1480,6 @@ const GestaoPerfilPublico = () => {
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => {
               setShowNavigationWarning(false);
-              blocker.reset?.();
             }}>
               Continuar a editar
             </AlertDialogCancel>
@@ -1448,7 +1487,9 @@ const GestaoPerfilPublico = () => {
               onClick={() => {
                 setHasUnsavedChanges(false);
                 setShowNavigationWarning(false);
-                blocker.proceed?.();
+                if ((window as any).__handleNavigationConfirm) {
+                  (window as any).__handleNavigationConfirm();
+                }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
