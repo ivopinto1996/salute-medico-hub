@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useBlocker } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,6 +81,10 @@ interface FAQ {
 
 const GestaoPerfilPublico = () => {
   const { toast } = useToast();
+  
+  // Estado para rastrear alterações não guardadas
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showNavigationWarning, setShowNavigationWarning] = useState(false);
   
   // Estados para os diferentes campos
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
@@ -519,13 +524,56 @@ const GestaoPerfilPublico = () => {
   };
 
   const salvarPerfil = () => {
+    setHasUnsavedChanges(false);
     toast({
       title: "Perfil salvo",
       description: "Suas informações de perfil público foram atualizadas com sucesso.",
     });
   };
 
-  // Verificar secções obrigatórias
+  // Blocker para navegação interna
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  // Detectar mudanças nos dados
+  useEffect(() => {
+    const hasChanges = 
+      fotoPerfil !== null ||
+      biografia !== '' ||
+      idiomas.length > 1 ||
+      formacoes.length > 0 ||
+      experiencias.length > 0 ||
+      consultorios.length > 0 ||
+      seguros.length > 0 ||
+      tiposConsulta.length > 0 ||
+      faqs.length > 0 ||
+      horarioTrabalho.length > 0;
+    
+    setHasUnsavedChanges(hasChanges);
+  }, [fotoPerfil, biografia, idiomas, formacoes, experiencias, consultorios, seguros, tiposConsulta, faqs, horarioTrabalho]);
+
+  // Warning para quando o utilizador tenta fechar o browser/tab
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Abrir modal quando o blocker é acionado
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      setShowNavigationWarning(true);
+    }
+  }, [blocker.state]);
+
   const consultoriosPreenchidos = consultorios.length > 0 && consultorios.some(c => c.nome && c.endereco && c.cidade);
   const horarioPreenchido = horarioTrabalho.length > 0;
   const tiposConsultaPreenchidos = tiposConsulta.length > 0 && tiposConsulta.some(t => t.tipo && t.preco);
@@ -1371,6 +1419,40 @@ const GestaoPerfilPublico = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Sim, eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modal de Confirmação de Saída */}
+      <AlertDialog open={showNavigationWarning} onOpenChange={setShowNavigationWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Alterações não guardadas</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem alterações não guardadas no seu perfil. Se sair agora, essas alterações serão perdidas.
+              <br />
+              <span className="text-xs text-muted-foreground mt-2 block">
+                Deseja sair sem guardar?
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowNavigationWarning(false);
+              blocker.reset?.();
+            }}>
+              Continuar a editar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                setHasUnsavedChanges(false);
+                setShowNavigationWarning(false);
+                blocker.proceed?.();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Sair sem guardar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
