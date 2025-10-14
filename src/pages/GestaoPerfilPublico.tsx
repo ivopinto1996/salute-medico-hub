@@ -14,6 +14,16 @@ import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Formacao {
   id: string;
@@ -86,6 +96,19 @@ const GestaoPerfilPublico = () => {
   const [horarioTrabalho, setHorarioTrabalho] = useState<HorarioTrabalho[]>([]);
 
   const [horarioPublico, setHorarioPublico] = useState(true);
+  
+  // Estado para controlar a modal de confirmação de eliminação
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    type: 'formacao' | 'experiencia' | 'consultorio' | 'telefone' | 'tipoConsulta' | 'faq' | 'diaSemana' | 'foto' | 'idioma' | null;
+    id?: string;
+    consultorioId?: string;
+    index?: number;
+    name?: string;
+  }>({
+    isOpen: false,
+    type: null,
+  });
 
   const idiomasDisponiveis = ['Português', 'Inglês', 'Espanhol', 'Francês', 'Alemão', 'Italiano'];
   const duracaoSlots = [15, 20, 30, 45, 60];
@@ -172,7 +195,20 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerFormacao = (id: string) => {
+    setConfirmDelete({
+      isOpen: true,
+      type: 'formacao',
+      id,
+    });
+  };
+  
+  const confirmarRemoverFormacao = (id: string) => {
     setFormacoes(formacoes.filter(f => f.id !== id));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Formação eliminada",
+      description: "A formação foi removida com sucesso.",
+    });
   };
 
   const adicionarExperiencia = () => {
@@ -187,7 +223,20 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerExperiencia = (id: string) => {
+    setConfirmDelete({
+      isOpen: true,
+      type: 'experiencia',
+      id,
+    });
+  };
+  
+  const confirmarRemoverExperiencia = (id: string) => {
     setExperiencias(experiencias.filter(e => e.id !== id));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Experiência eliminada",
+      description: "A experiência profissional foi removida com sucesso.",
+    });
   };
 
   const adicionarConsultorio = () => {
@@ -216,7 +265,23 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerConsultorio = (id: string) => {
+    const consultorio = consultorios.find(c => c.id === id);
+    setConfirmDelete({
+      isOpen: true,
+      type: 'consultorio',
+      id,
+      name: consultorio?.nome || 'Consultório',
+    });
+  };
+  
+  const confirmarRemoverConsultorio = (id: string) => {
     setConsultorios(consultorios.filter(c => c.id !== id));
+    setHorarioTrabalho(horarioTrabalho.filter(h => h.consultorioId !== id));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Consultório eliminado",
+      description: "O consultório e seus horários foram removidos com sucesso.",
+    });
   };
 
   const adicionarTelefoneConsultorio = (consultorioId: string) => {
@@ -228,11 +293,25 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerTelefoneConsultorio = (consultorioId: string, index: number) => {
+    setConfirmDelete({
+      isOpen: true,
+      type: 'telefone',
+      consultorioId,
+      index,
+    });
+  };
+  
+  const confirmarRemoverTelefoneConsultorio = (consultorioId: string, index: number) => {
     setConsultorios(consultorios.map(c => 
       c.id === consultorioId 
         ? { ...c, telefones: c.telefones.filter((_, i) => i !== index) }
         : c
     ));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Telefone eliminado",
+      description: "O número de telefone foi removido com sucesso.",
+    });
   };
 
   const adicionarTipoConsulta = () => {
@@ -245,7 +324,20 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerTipoConsulta = (id: string) => {
+    setConfirmDelete({
+      isOpen: true,
+      type: 'tipoConsulta',
+      id,
+    });
+  };
+  
+  const confirmarRemoverTipoConsulta = (id: string) => {
     setTiposConsulta(tiposConsulta.filter(t => t.id !== id));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Tipo de consulta eliminado",
+      description: "O tipo de consulta foi removido com sucesso.",
+    });
   };
 
   const adicionarFAQ = () => {
@@ -258,7 +350,20 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerFAQ = (id: string) => {
+    setConfirmDelete({
+      isOpen: true,
+      type: 'faq',
+      id,
+    });
+  };
+  
+  const confirmarRemoverFAQ = (id: string) => {
     setFaqs(faqs.filter(f => f.id !== id));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "FAQ eliminada",
+      description: "A pergunta frequente foi removida com sucesso.",
+    });
   };
 
   const handleFotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -273,7 +378,19 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerFoto = () => {
+    setConfirmDelete({
+      isOpen: true,
+      type: 'foto',
+    });
+  };
+  
+  const confirmarRemoverFoto = () => {
     setFotoPerfil(null);
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Foto removida",
+      description: "A foto de perfil foi removida com sucesso.",
+    });
   };
 
   const adicionarDiaSemana = (dia: string, consultorioId: string) => {
@@ -293,7 +410,92 @@ const GestaoPerfilPublico = () => {
   };
 
   const removerDiaSemana = (id: string) => {
+    const horario = horarioTrabalho.find(h => h.id === id);
+    setConfirmDelete({
+      isOpen: true,
+      type: 'diaSemana',
+      id,
+      name: horario?.dia,
+    });
+  };
+  
+  const confirmarRemoverDiaSemana = (id: string) => {
     setHorarioTrabalho(horarioTrabalho.filter(h => h.id !== id));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Dia removido",
+      description: "O horário do dia foi removido com sucesso.",
+    });
+  };
+  
+  const confirmarRemoverIdioma = (index: number) => {
+    setIdiomas(idiomas.filter((_, i) => i !== index));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Idioma removido",
+      description: "O idioma foi removido com sucesso.",
+    });
+  };
+  
+  const handleConfirmDelete = () => {
+    if (!confirmDelete.type) return;
+    
+    switch (confirmDelete.type) {
+      case 'formacao':
+        if (confirmDelete.id) confirmarRemoverFormacao(confirmDelete.id);
+        break;
+      case 'experiencia':
+        if (confirmDelete.id) confirmarRemoverExperiencia(confirmDelete.id);
+        break;
+      case 'consultorio':
+        if (confirmDelete.id) confirmarRemoverConsultorio(confirmDelete.id);
+        break;
+      case 'telefone':
+        if (confirmDelete.consultorioId !== undefined && confirmDelete.index !== undefined) {
+          confirmarRemoverTelefoneConsultorio(confirmDelete.consultorioId, confirmDelete.index);
+        }
+        break;
+      case 'tipoConsulta':
+        if (confirmDelete.id) confirmarRemoverTipoConsulta(confirmDelete.id);
+        break;
+      case 'faq':
+        if (confirmDelete.id) confirmarRemoverFAQ(confirmDelete.id);
+        break;
+      case 'diaSemana':
+        if (confirmDelete.id) confirmarRemoverDiaSemana(confirmDelete.id);
+        break;
+      case 'foto':
+        confirmarRemoverFoto();
+        break;
+      case 'idioma':
+        if (confirmDelete.index !== undefined) confirmarRemoverIdioma(confirmDelete.index);
+        break;
+    }
+  };
+  
+  const getDeleteMessage = () => {
+    switch (confirmDelete.type) {
+      case 'formacao':
+        return 'Tem a certeza que deseja eliminar esta formação?';
+      case 'experiencia':
+        return 'Tem a certeza que deseja eliminar esta experiência profissional?';
+      case 'consultorio':
+        return `Tem a certeza que deseja eliminar o consultório "${confirmDelete.name}"? Todos os horários associados também serão removidos.`;
+      case 'telefone':
+        return 'Tem a certeza que deseja eliminar este número de telefone?';
+      case 'tipoConsulta':
+        return 'Tem a certeza que deseja eliminar este tipo de consulta?';
+      case 'faq':
+        return 'Tem a certeza que deseja eliminar esta pergunta frequente?';
+      case 'diaSemana':
+        return `Tem a certeza que deseja eliminar o horário de ${confirmDelete.name}?`;
+      case 'foto':
+        return 'Tem a certeza que deseja remover a foto de perfil?';
+      case 'idioma':
+        return `Tem a certeza que deseja remover o idioma "${confirmDelete.name}"?`;
+      default:
+        return 'Tem a certeza que deseja eliminar este item?';
+    }
   };
 
   const updateHorarioTrabalho = (id: string, field: keyof HorarioTrabalho, value: any) => {
@@ -465,7 +667,14 @@ const GestaoPerfilPublico = () => {
               {idiomas.map((idioma, index) => (
                 <Badge key={index} variant="secondary" className="flex items-center gap-1">
                   {idioma}
-                  <button onClick={() => setIdiomas(idiomas.filter((_, i) => i !== index))}>
+                  <button onClick={() => {
+                    setConfirmDelete({
+                      isOpen: true,
+                      type: 'idioma',
+                      index,
+                      name: idioma,
+                    });
+                  }}>
                     <Trash2 className="h-3 w-3" />
                   </button>
                 </Badge>
@@ -1118,6 +1327,30 @@ const GestaoPerfilPublico = () => {
           Salvar Perfil Público
         </Button>
       </div>
+      
+      {/* Modal de Confirmação de Eliminação */}
+      <AlertDialog open={confirmDelete.isOpen} onOpenChange={(open) => !open && setConfirmDelete({ isOpen: false, type: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Eliminação</AlertDialogTitle>
+            <AlertDialogDescription>
+              {getDeleteMessage()}
+              <br />
+              <span className="text-xs text-muted-foreground mt-2 block">
+                Esta ação não pode ser revertida.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmDelete({ isOpen: false, type: null })}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
