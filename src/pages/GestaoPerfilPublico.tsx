@@ -100,7 +100,7 @@ const GestaoPerfilPublico = () => {
   // Estado para controlar a modal de confirmação de eliminação
   const [confirmDelete, setConfirmDelete] = useState<{
     isOpen: boolean;
-    type: 'formacao' | 'experiencia' | 'consultorio' | 'telefone' | 'tipoConsulta' | 'faq' | 'diaSemana' | 'foto' | 'idioma' | null;
+    type: 'formacao' | 'experiencia' | 'consultorio' | 'telefone' | 'tipoConsulta' | 'faq' | 'diaSemana' | 'foto' | 'idioma' | 'seguro' | null;
     id?: string;
     consultorioId?: string;
     index?: number;
@@ -437,6 +437,15 @@ const GestaoPerfilPublico = () => {
     });
   };
   
+  const confirmarRemoverSeguro = (index: number) => {
+    setSeguros(seguros.filter((_, i) => i !== index));
+    setConfirmDelete({ isOpen: false, type: null });
+    toast({
+      title: "Seguro removido",
+      description: "O seguro foi removido com sucesso.",
+    });
+  };
+  
   const handleConfirmDelete = () => {
     if (!confirmDelete.type) return;
     
@@ -470,6 +479,9 @@ const GestaoPerfilPublico = () => {
       case 'idioma':
         if (confirmDelete.index !== undefined) confirmarRemoverIdioma(confirmDelete.index);
         break;
+      case 'seguro':
+        if (confirmDelete.index !== undefined) confirmarRemoverSeguro(confirmDelete.index);
+        break;
     }
   };
   
@@ -493,6 +505,8 @@ const GestaoPerfilPublico = () => {
         return 'Tem a certeza que deseja remover a foto de perfil?';
       case 'idioma':
         return `Tem a certeza que deseja remover o idioma "${confirmDelete.name}"?`;
+      case 'seguro':
+        return `Tem a certeza que deseja remover o seguro "${confirmDelete.name}"?`;
       default:
         return 'Tem a certeza que deseja eliminar este item?';
     }
@@ -1214,7 +1228,14 @@ const GestaoPerfilPublico = () => {
               {seguros.map((seguro, index) => (
                 <Badge key={index} variant="secondary" className="flex items-center gap-1">
                   {seguro}
-                  <button onClick={() => setSeguros(seguros.filter((_, i) => i !== index))}>
+                  <button onClick={() => {
+                    setConfirmDelete({
+                      isOpen: true,
+                      type: 'seguro',
+                      index,
+                      name: seguro,
+                    });
+                  }}>
                     <Trash2 className="h-3 w-3" />
                   </button>
                 </Badge>
